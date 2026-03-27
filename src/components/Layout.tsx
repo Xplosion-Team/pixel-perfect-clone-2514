@@ -19,7 +19,7 @@ export function Layout() {
             </span>
           </header>
           <main className="flex-1 overflow-auto">
-            <div className="max-w-[960px] mx-auto px-4 md:px-6 py-6 md:py-9 pb-24 md:pb-16">
+            <div className="max-w-[960px] mx-auto px-4 md:px-6 py-6 md:py-9 pb-32 md:pb-16">
               <Outlet />
             </div>
           </main>
