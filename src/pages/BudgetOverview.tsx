@@ -42,7 +42,7 @@ export default function BudgetOverview() {
         PC + MSO + Non-Profit for CCM/RPM/MNT in PA. All clinical costs are variable per patient with 15% payroll burden loaded. RPM tech and billing/coding scale with volume. All programs launch Month 1. MNT cash Month 2, CCM/RPM cash Month 4.
       </p>
 
-      <div className="grid grid-cols-3 gap-2 mb-5">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-5">
         <KPICard color="purple" label="Total capital" value={`${formatCurrency(gL)} – ${formatCurrency(gH)}`} subtitle="Through month 3" />
         <KPICard color="coral" label="Monthly burn (30 pts)" value={`${formatCurrency(mL)} – ${formatCurrency(mH)}`} subtitle="Clinical variable + platform" />
         <KPICard color="green" label="Margin per patient" value="$51.62" subtitle="31% on CCM+RPM ($166)" />
