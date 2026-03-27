@@ -15,7 +15,7 @@ export function Layout() {
           <header className="h-11 flex items-center border-b border-border sticky top-0 z-50 bg-background">
             <SidebarTrigger className="ml-2 hidden md:flex" />
             <span className="ml-3 text-xs font-bold tracking-tight">
-              Fare<span className="text-purple">RX</span>
+              Fare<span className="text-brand-accent">RX</span>
             </span>
           </header>
           <main className="flex-1 overflow-auto">
