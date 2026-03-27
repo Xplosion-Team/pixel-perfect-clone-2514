@@ -129,7 +129,7 @@ export default function CashFlowModel() {
 
       {/* Table */}
       <div className="text-xs font-semibold uppercase tracking-[0.04em] text-foreground-secondary mb-2">Month-by-month cash flow</div>
-      <div className="overflow-x-auto mb-4">
+      <div className="overflow-x-auto mb-4 -mx-4 px-4 pb-4 md:mx-0 md:px-0 md:pb-0" style={{ WebkitOverflowScrolling: "touch" }}>
         <table className="w-full border-collapse text-[9px]">
           <thead>
             <tr>
