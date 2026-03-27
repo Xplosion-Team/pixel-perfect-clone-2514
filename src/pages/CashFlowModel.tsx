@@ -9,7 +9,6 @@ import {
 
 interface SliderFieldProps {
   label: string;
-  id: string;
   min: number;
   max: number;
   step: number;
