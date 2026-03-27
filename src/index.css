@@ -66,13 +66,13 @@
     --teal-light: 166 76% 97%;
     --teal-muted: 168 83% 76%;
 
-    --sidebar-background: 0 0% 7%;
-    --sidebar-foreground: 0 0% 70%;
+    --sidebar-background: 40 14% 97%;
+    --sidebar-foreground: 48 6% 10%;
     --sidebar-primary: 48 96% 53%;
     --sidebar-primary-foreground: 0 0% 7%;
-    --sidebar-accent: 0 0% 14%;
-    --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 0 0% 100% / 0.08;
+    --sidebar-accent: 40 8% 91%;
+    --sidebar-accent-foreground: 48 6% 10%;
+    --sidebar-border: 0 0% 0% / 0.08;
     --sidebar-ring: 48 96% 53%;
   }
 }
