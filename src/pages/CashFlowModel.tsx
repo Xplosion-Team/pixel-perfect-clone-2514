@@ -99,7 +99,7 @@ export default function CashFlowModel() {
         Actual bank balance. All clinical costs variable per patient (RD, RN, MA, RPM Tech loaded + billing 4.5%). Platform costs (Zivian + EHR) are fixed. MNT cash Month 2, CCM/RPM cash Month 4.
       </p>
 
-      <div className="grid grid-cols-4 gap-2 mb-5">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-5">
         <KPICard color={minBal < 0 ? "red" : "green"} label="Lowest balance" value={<span className={minBal < 0 ? "text-red" : "text-green"}>{formatCurrency(minBal)}</span>} subtitle={`Month ${trM}`} />
         <KPICard color="blue" label="Cash-positive month" value={fp >= 0 ? `Month ${fp + 1}` : "N/A"} subtitle="Net inflow > outflow" />
         <KPICard color="coral" label="Y1 expenses" value={formatCurrency(tE)} subtitle={`Clinical: ${formatCurrency(tClin)} (${Math.round((tClin / tE) * 100)}%)`} />
@@ -109,7 +109,7 @@ export default function CashFlowModel() {
       {/* Sliders */}
       <div className="bg-card rounded-lg p-3.5 mb-4">
         <h3 className="text-[9px] font-semibold uppercase tracking-[0.06em] text-foreground-secondary mb-2">Adjust assumptions</h3>
-        <div className="grid grid-cols-3 gap-2.5">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5">
           <SliderField label="MNT patients" min={5} max={40} step={1} value={mntPts} onChange={setMntPts} display={`${mntPts} pts × ${visits} visits × $68`} />
           <SliderField label="CCM+RPM patients (Mo 1)" min={5} max={80} step={5} value={rpmStart} onChange={setRpmStart} display={`${rpmStart} pts @ $166/pt`} />
           <SliderField label="Monthly growth" min={0} max={25} step={5} value={growth} onChange={setGrowth} display={`+${growth} pts/mo`} />
