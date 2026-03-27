@@ -89,7 +89,7 @@
 
 /* Visible scrollbar on mobile for horizontal scroll areas */
 .scrollbar-thin::-webkit-scrollbar {
-  height: 6px;
+  height: 14px;
 }
 .scrollbar-thin::-webkit-scrollbar-track {
   background: hsl(var(--background-muted));

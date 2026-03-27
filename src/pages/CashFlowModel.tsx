@@ -40,7 +40,7 @@ export default function CashFlowModel() {
   const [rpmStart, setRpmStart] = useState(30);
   const [growth, setGrowth] = useState(10);
   const [ehr, setEhr] = useState(650);
-  const [capital, setCapital] = useState(15000);
+  const [capital, setCapital] = useState(35000);
   const [visits, setVisits] = useState(2);
 
   const months = useMemo(() => {
