@@ -87,6 +87,19 @@
   }
 }
 
+/* Visible scrollbar on mobile for horizontal scroll areas */
+.scrollbar-thin::-webkit-scrollbar {
+  height: 6px;
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: hsl(var(--background-muted));
+  border-radius: 3px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: hsl(var(--foreground-muted));
+  border-radius: 3px;
+}
+
 @layer utilities {
   .font-mono {
     font-family: 'DM Mono', monospace;
