@@ -12,10 +12,10 @@ export function Layout() {
           <AppSidebar />
         </div>
         <div className="flex-1 flex flex-col min-w-0">
-          <header className="h-11 flex items-center border-b border-border sticky top-0 z-50 bg-background">
+          <header className="h-11 flex items-center border-b border-border md:border-border sticky top-0 z-50 bg-brand md:bg-background">
             <SidebarTrigger className="ml-2 hidden md:flex" />
-            <span className="ml-3 text-xs font-bold tracking-tight">
-              Fare<span className="text-purple">RX</span>
+            <span className="ml-3 text-xs font-bold tracking-tight text-white md:text-foreground">
+              Fare<span className="text-brand-accent">RX</span>
             </span>
           </header>
           <main className="flex-1 overflow-auto">

@@ -31,7 +31,7 @@ export function AppSidebar() {
           <SidebarGroupLabel>
             {!collapsed && (
               <span className="text-xs font-bold tracking-tight">
-                Fare<span className="text-purple">RX</span>
+                Fare<span className="text-brand-accent">RX</span>
               </span>
             )}
           </SidebarGroupLabel>
