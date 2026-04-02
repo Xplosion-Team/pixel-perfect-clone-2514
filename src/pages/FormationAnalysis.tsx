@@ -42,7 +42,7 @@ export default function FormationAnalysis() {
         Verified costs from official Pennsylvania state sources. We originally budgeted $300 for PLLC filing — the actual cost is $125, but a hidden $700/year annual fee makes the PLLC significantly more expensive. A Professional Corporation (PC) is the better choice.
       </p>
 
-      <div className="grid grid-cols-3 gap-2.5 mb-6">
+      <div data-tour="formation-compare" className="grid grid-cols-3 gap-2.5 mb-6">
         <KPICard color="green" label="PC filing cost" value="$125" subtitle="+ $7/year annual report" />
         <KPICard color="red" label="PLLC hidden annual fee" value={<>$700<span className="text-xs text-foreground-secondary">/yr</span></>} subtitle="Per physician member — due April 15" />
         <KPICard color="blue" label="5-year savings (PC vs PLLC)" value="$3,465" subtitle="Same compliance, same protection" />
