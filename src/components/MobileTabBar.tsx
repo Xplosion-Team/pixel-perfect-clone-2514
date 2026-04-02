@@ -5,6 +5,7 @@ const tabs = [
   { title: "Budget", url: "/", icon: BarChart3 },
   { title: "Cash Flow", url: "/cash-flow", icon: DollarSign },
   { title: "Formation", url: "/formation", icon: Scale },
+  { title: "Economics", url: "/economics", icon: Calculator },
 ];
 
 export function MobileTabBar() {

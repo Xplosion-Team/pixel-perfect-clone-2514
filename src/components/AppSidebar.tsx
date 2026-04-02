@@ -17,6 +17,7 @@ const items = [
   { title: "Budget Overview", url: "/", icon: BarChart3 },
   { title: "Cash Flow Model", url: "/cash-flow", icon: DollarSign, tourId: "nav-cashflow" },
   { title: "PC vs PLLC", url: "/formation", icon: Scale },
+  { title: "Patient Economics", url: "/economics", icon: Calculator },
 ];
 
 export function AppSidebar() {
