@@ -49,6 +49,9 @@ export default function CashFlowModel() {
   const [visits, setVisits] = useState(2);
 
   const { onetimeCosts, monthlyCosts, addCost, removeCost } = useCustomCosts();
+  const { assumptions: cacAssumptions } = useCACLTVAssumptions();
+
+  const cacBudget = cacAssumptions.cacDevice * cacAssumptions.targetPts; // e.g. $150 × 100 = $15,000
 
   const customOnetimeHi = onetimeCosts.reduce((a, c) => a + c.hi, 0);
   const customMonthlyHi = monthlyCosts.reduce((a, c) => a + c.hi, 0);
