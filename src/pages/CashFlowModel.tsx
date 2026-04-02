@@ -143,7 +143,7 @@ export default function CashFlowModel() {
       </div>
 
       {/* Revenue timeline bar */}
-      <div className="flex rounded overflow-hidden h-4.5 text-[8px] font-semibold uppercase tracking-[0.03em] mb-3.5">
+      <div data-tour="cf-timeline" className="flex rounded overflow-hidden h-4.5 text-[8px] font-semibold uppercase tracking-[0.03em] mb-3.5">
         <div className="flex-1 flex items-center justify-center text-primary-foreground bg-amber">Billing (Mo 1)</div>
         <div className="flex-1 flex items-center justify-center text-primary-foreground bg-teal">MNT $ (Mo 2)</div>
         <div className="flex-[2] flex items-center justify-center text-primary-foreground bg-blue">CCM/RPM $ (Mo 4)</div>
