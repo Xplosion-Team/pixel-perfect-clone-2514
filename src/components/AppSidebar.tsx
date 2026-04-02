@@ -1,4 +1,4 @@
-import { DollarSign, Scale, BarChart3, Calculator } from "lucide-react";
+import { DollarSign, Scale, BarChart3, Calculator, TrendingUp } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import {
