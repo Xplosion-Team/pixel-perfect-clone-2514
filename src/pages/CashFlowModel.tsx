@@ -36,11 +36,11 @@ function SliderField({ label, min, max, step, value, onChange, display }: Slider
 }
 
 export default function CashFlowModel() {
-  const [mntPts, setMntPts] = useState(15);
+  const [mntPts, setMntPts] = useState(10);
   const [rpmStart, setRpmStart] = useState(30);
   const [growth, setGrowth] = useState(10);
   const [ehr, setEhr] = useState(650);
-  const [capital, setCapital] = useState(35000);
+  const [capital, setCapital] = useState(40000);
   const [visits, setVisits] = useState(2);
 
   const months = useMemo(() => {
@@ -48,7 +48,8 @@ export default function CashFlowModel() {
     const ms: any[] = [];
 
     for (let m = 1; m <= N; m++) {
-      const o: any = { m, label: `Mo ${m}` };
+      const moNames = ["Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec","Jan","Feb","Mar"];
+      const o: any = { m, label: moNames[m - 1] };
       const mp = m <= 3 ? mntPts : Math.min(mntPts + Math.floor((m - 3) * 2), mntPts + 10);
       o.mntB = mp * visits * MR;
       const rp = Math.min(rpmStart + (m - 1) * growth, 300);
@@ -61,7 +62,7 @@ export default function CashFlowModel() {
       o.zv = ZIVIAN;
       o.ehr = ehr;
       o.ot = 0;
-      if (m === 1) o.ot = OT1 + rpmStart * DPP;
+      if (m === 1) o.ot = OT1 + rpmStart * DPP + 3000; // +$3K legal/HC attorney PC license
       if (m === 2) o.ot = CRED;
 
       // Milestone bonuses ($2,000 each)
@@ -124,7 +125,7 @@ export default function CashFlowModel() {
           <SliderField label="CCM+RPM patients (Mo 1)" min={5} max={80} step={5} value={rpmStart} onChange={setRpmStart} display={`${rpmStart} pts @ $166/pt`} />
           <SliderField label="Monthly growth" min={0} max={25} step={5} value={growth} onChange={setGrowth} display={`+${growth} pts/mo`} />
           <SliderField label="EHR cost" min={400} max={1200} step={50} value={ehr} onChange={setEhr} display={`$${ehr}/mo`} />
-          <SliderField label="Starting capital" min={5000} max={40000} step={1000} value={capital} onChange={setCapital} display={`$${capital.toLocaleString()}`} />
+          <SliderField label="Starting capital" min={40000} max={60000} step={1000} value={capital} onChange={setCapital} display={`$${capital.toLocaleString()}`} />
           <SliderField label="MNT visits/pt/mo" min={1} max={4} step={1} value={visits} onChange={setVisits} display={`${visits} visits @ $68`} />
         </div>
       </div>
