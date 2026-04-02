@@ -130,7 +130,7 @@ export default function CashFlowModel() {
       </div>
 
       {/* Sliders */}
-      <div className="bg-card rounded-lg p-3.5 mb-4">
+      <div data-tour="cf-sliders" className="bg-card rounded-lg p-3.5 mb-4">
         <h3 className="text-[9px] font-semibold uppercase tracking-[0.06em] text-foreground-secondary mb-2">Adjust assumptions</h3>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5">
           <SliderField label="MNT patients" min={5} max={40} step={1} value={mntPts} onChange={setMntPts} display={`${mntPts} pts × ${visits} visits × $68`} />
