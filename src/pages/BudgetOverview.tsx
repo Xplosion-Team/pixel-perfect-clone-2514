@@ -125,6 +125,7 @@ export default function BudgetOverview() {
           { label: "Pre-enrollment", lo: pL, hi: pH },
           { label: "3 months recurring", lo: mL * 3, hi: mH * 3 },
           { label: "Milestone bonuses (4×$2K)", lo: mlL, hi: mlH },
+          { label: `CAC acquisition (${cacA.targetPts} pts × ${formatCurrency(cacA.cacDevice)})`, lo: cacBudget, hi: cacBudget },
         ].map((item) => (
           <div key={item.label} className="grid grid-cols-[1fr_80px_80px_1fr] items-center py-1.5 border-b border-border">
             <div className="text-[11px]">{item.label}</div>
