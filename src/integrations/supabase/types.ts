@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      cac_ltv_assumptions: {
+        Row: {
+          created_at: string
+          id: string
+          key: string
+          updated_at: string
+          value: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          key: string
+          updated_at?: string
+          value?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          key?: string
+          updated_at?: string
+          value?: number
+        }
+        Relationships: []
+      }
       custom_costs: {
         Row: {
           created_at: string
