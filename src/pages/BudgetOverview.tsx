@@ -36,14 +36,15 @@ export default function BudgetOverview() {
   const mH = mo.items.reduce((a, i) => a + i.hi, 0) + monthlyCosts.reduce((a, c) => a + c.hi, 0);
   const mlL = ml.items.reduce((a, i) => a + i.lo, 0);
   const mlH = ml.items.reduce((a, i) => a + i.hi, 0);
-  const gL = oL + pL + mL * 3 + mlL;
-  const gH = oH + pH + mH * 3 + mlH;
+  const gL = oL + pL + mL * 3 + mlL + cacBudget;
+  const gH = oH + pH + mH * 3 + mlH + cacBudget;
 
   const chartData = [
     { name: "Upfront", lo: oL, hi: oH },
     { name: "Pre-enroll", lo: pL, hi: pH },
     { name: "3mo burn", lo: mL * 3, hi: mH * 3 },
     { name: "Milestones", lo: mlL, hi: mlH },
+    { name: "CAC acq.", lo: cacBudget, hi: cacBudget },
     { name: "Total", lo: gL, hi: gH },
   ];
 
