@@ -63,10 +63,20 @@ export default function CashFlowModel() {
       o.ot = 0;
       if (m === 1) o.ot = OT1 + rpmStart * DPP;
       if (m === 2) o.ot = CRED;
+
+      // Milestone bonuses ($2,000 each)
+      o.milestone = 0;
+      // Time-based milestones
+      if ([1, 2, 4, 6].includes(m)) o.milestone += 2000;
+      // Patient-count milestones (trigger once when crossing 30 or 60)
+      const prevRp = m > 1 ? ms[m - 2].rpmPts : 0;
+      if (prevRp < 30 && rp >= 30) o.milestone += 2000;
+      if (prevRp < 60 && rp >= 60) o.milestone += 2000;
+
       const cl = clinicalCost(rp, o.totB);
       o.rd = cl.rd; o.rn = cl.rn; o.ma = cl.ma; o.rpmTech = cl.rpm; o.bill = cl.bill;
       o.clinTotal = cl.total;
-      o.totE = o.zv + o.ehr + o.ot + o.clinTotal;
+      o.totE = o.zv + o.ehr + o.ot + o.milestone + o.clinTotal;
       o.net = o.totR - o.totE;
       o.bal = (m === 1 ? capital : ms[m - 2].bal) + o.net;
       ms.push(o);
