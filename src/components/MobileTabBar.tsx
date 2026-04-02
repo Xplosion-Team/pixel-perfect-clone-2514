@@ -1,10 +1,11 @@
-import { BarChart3, DollarSign, Scale } from "lucide-react";
+import { BarChart3, DollarSign, Scale, Calculator } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 
 const tabs = [
   { title: "Budget", url: "/", icon: BarChart3 },
   { title: "Cash Flow", url: "/cash-flow", icon: DollarSign },
   { title: "Formation", url: "/formation", icon: Scale },
+  { title: "Economics", url: "/economics", icon: Calculator },
 ];
 
 export function MobileTabBar() {

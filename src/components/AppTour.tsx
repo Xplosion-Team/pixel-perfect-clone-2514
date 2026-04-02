@@ -76,6 +76,35 @@ const formationSteps: Step[] = [
   },
 ];
 
+const economicsSteps: Step[] = [
+  {
+    target: "[data-tour='econ-explainer']",
+    content: "This explainer breaks down the patient economics model in simple terms — how revenue flows from each patient.",
+    placement: "bottom",
+    skipBeacon: true,
+  },
+  {
+    target: "[data-tour='econ-patients']",
+    content: "Slide to adjust your active patient panel size. All numbers update instantly.",
+    placement: "bottom",
+  },
+  {
+    target: "[data-tour='econ-metrics']",
+    content: "These cards show your monthly revenue, variable costs, gross profit, and margin at a glance.",
+    placement: "bottom",
+  },
+  {
+    target: "[data-tour='econ-controls']",
+    content: "Adjust hourly staff rates and time-per-patient assumptions to model different scenarios.",
+    placement: "top",
+  },
+  {
+    target: "[data-tour='econ-capacity']",
+    content: "See if your current crew can handle the panel — green means comfortable, amber means approaching limits.",
+    placement: "top",
+  },
+];
+
 const joyrideStyles = {
   tooltip: {
     borderRadius: 10,
@@ -121,6 +150,9 @@ export function AppTour() {
     } else if (path === "/formation") {
       key = `${TOUR_KEY}-formation`;
       s = formationSteps;
+    } else if (path === "/economics") {
+      key = `${TOUR_KEY}-economics`;
+      s = economicsSteps;
     }
 
     if (key && !localStorage.getItem(key)) {

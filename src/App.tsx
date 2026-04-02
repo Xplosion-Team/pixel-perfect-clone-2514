@@ -7,6 +7,7 @@ import { Layout } from "@/components/Layout";
 import BudgetOverview from "@/pages/BudgetOverview";
 import CashFlowModel from "@/pages/CashFlowModel";
 import FormationAnalysis from "@/pages/FormationAnalysis";
+import PatientEconomics from "@/pages/PatientEconomics";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -22,6 +23,7 @@ const App = () => (
             <Route path="/" element={<BudgetOverview />} />
             <Route path="/cash-flow" element={<CashFlowModel />} />
             <Route path="/formation" element={<FormationAnalysis />} />
+            <Route path="/economics" element={<PatientEconomics />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>

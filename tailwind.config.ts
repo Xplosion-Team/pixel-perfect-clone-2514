@@ -70,6 +70,7 @@ export default {
           DEFAULT: "hsl(var(--green))",
           light: "hsl(var(--green-light))",
           muted: "hsl(var(--green-muted))",
+          dark: "hsl(var(--green-dark))",
         },
         coral: {
           DEFAULT: "hsl(var(--coral))",
@@ -84,6 +85,7 @@ export default {
           DEFAULT: "hsl(var(--amber))",
           light: "hsl(var(--amber-light))",
           muted: "hsl(var(--amber-muted))",
+          dark: "hsl(var(--amber-dark))",
         },
         red: {
           DEFAULT: "hsl(var(--red))",
