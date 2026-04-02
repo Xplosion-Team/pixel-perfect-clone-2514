@@ -7,6 +7,7 @@ import { Layout } from "@/components/Layout";
 import BudgetOverview from "@/pages/BudgetOverview";
 import CashFlowModel from "@/pages/CashFlowModel";
 import FormationAnalysis from "@/pages/FormationAnalysis";
+import PatientEconomics from "@/pages/PatientEconomics";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
