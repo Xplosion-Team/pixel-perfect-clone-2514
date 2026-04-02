@@ -4,6 +4,7 @@ import { InfoBox } from "@/components/ui/info-box";
 import { BudgetSectionDisplay } from "@/components/BudgetSectionDisplay";
 import { BUDGET_DATA, formatCurrency } from "@/lib/budget-data";
 import { useCustomCosts } from "@/hooks/use-custom-costs";
+import { useCACLTVAssumptions } from "@/hooks/use-cac-ltv-assumptions";
 import { AddCostDialog } from "@/components/AddCostDialog";
 import { X } from "lucide-react";
 import {
@@ -19,6 +20,8 @@ const sectionColors: Record<string, string> = {
 
 export default function BudgetOverview() {
   const { onetimeCosts, monthlyCosts, addCost, removeCost } = useCustomCosts();
+  const { assumptions: cacA } = useCACLTVAssumptions();
+  const cacBudget = cacA.cacDevice * cacA.targetPts;
 
   const ot = BUDGET_DATA.onetime;
   const pe = BUDGET_DATA.preenroll;
@@ -33,14 +36,15 @@ export default function BudgetOverview() {
   const mH = mo.items.reduce((a, i) => a + i.hi, 0) + monthlyCosts.reduce((a, c) => a + c.hi, 0);
   const mlL = ml.items.reduce((a, i) => a + i.lo, 0);
   const mlH = ml.items.reduce((a, i) => a + i.hi, 0);
-  const gL = oL + pL + mL * 3 + mlL;
-  const gH = oH + pH + mH * 3 + mlH;
+  const gL = oL + pL + mL * 3 + mlL + cacBudget;
+  const gH = oH + pH + mH * 3 + mlH + cacBudget;
 
   const chartData = [
     { name: "Upfront", lo: oL, hi: oH },
     { name: "Pre-enroll", lo: pL, hi: pH },
     { name: "3mo burn", lo: mL * 3, hi: mH * 3 },
     { name: "Milestones", lo: mlL, hi: mlH },
+    { name: "CAC acq.", lo: cacBudget, hi: cacBudget },
     { name: "Total", lo: gL, hi: gH },
   ];
 
@@ -121,6 +125,7 @@ export default function BudgetOverview() {
           { label: "Pre-enrollment", lo: pL, hi: pH },
           { label: "3 months recurring", lo: mL * 3, hi: mH * 3 },
           { label: "Milestone bonuses (4×$2K)", lo: mlL, hi: mlH },
+          { label: `CAC acquisition (${cacA.targetPts} pts × ${formatCurrency(cacA.cacDevice)})`, lo: cacBudget, hi: cacBudget },
         ].map((item) => (
           <div key={item.label} className="grid grid-cols-[1fr_80px_80px_1fr] items-center py-1.5 border-b border-border">
             <div className="text-[11px]">{item.label}</div>

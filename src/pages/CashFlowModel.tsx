@@ -5,6 +5,7 @@ import { InfoBox } from "@/components/ui/info-box";
 import { formatCurrency, clinicalCost, ZIVIAN } from "@/lib/budget-data";
 import { exportCashFlow } from "@/lib/export-cashflow";
 import { useCustomCosts } from "@/hooks/use-custom-costs";
+import { useCACLTVAssumptions } from "@/hooks/use-cac-ltv-assumptions";
 import { AddCostDialog } from "@/components/AddCostDialog";
 import { Download, X } from "lucide-react";
 import {
@@ -48,6 +49,9 @@ export default function CashFlowModel() {
   const [visits, setVisits] = useState(2);
 
   const { onetimeCosts, monthlyCosts, addCost, removeCost } = useCustomCosts();
+  const { assumptions: cacAssumptions } = useCACLTVAssumptions();
+
+  const cacBudget = cacAssumptions.cacDevice * cacAssumptions.targetPts; // e.g. $150 × 100 = $15,000
 
   const customOnetimeHi = onetimeCosts.reduce((a, c) => a + c.hi, 0);
   const customMonthlyHi = monthlyCosts.reduce((a, c) => a + c.hi, 0);
@@ -82,17 +86,18 @@ export default function CashFlowModel() {
       if ([1, 2, 4, 6].includes(m)) o.milestone = 2000;
 
       o.customMonthly = customMonthlyHi;
+      o.cacAcq = m === 1 ? cacBudget : 0;
 
       const cl = clinicalCost(rp, o.totB);
       o.rd = cl.rd; o.rn = cl.rn; o.ma = cl.ma; o.rpmTech = cl.rpm; o.bill = cl.bill;
       o.clinTotal = cl.total;
-      o.totE = o.zv + o.ehr + o.ot + o.milestone + o.clinTotal + o.customMonthly;
+      o.totE = o.zv + o.ehr + o.ot + o.milestone + o.clinTotal + o.customMonthly + o.cacAcq;
       o.net = o.totR - o.totE;
       o.bal = (m === 1 ? capital : ms[m - 2].bal) + o.net;
       ms.push(o);
     }
     return ms;
-  }, [mntPts, rpmStart, growth, ehr, capital, visits, customOnetimeHi, customMonthlyHi]);
+  }, [mntPts, rpmStart, growth, ehr, capital, visits, customOnetimeHi, customMonthlyHi, cacBudget]);
 
   const minBal = Math.min(...months.map((m) => m.bal));
   const trM = months.findIndex((m) => m.bal === minBal) + 1;
@@ -215,6 +220,7 @@ export default function CashFlowModel() {
             <DataRow label="EHR" values={months.map((m) => m.ehr)} negative />
             <DataRow label="One-time/devices" values={months.map((m) => m.ot)} negative />
             <DataRow label="Milestone bonuses" values={months.map((m) => m.milestone)} negative />
+            <DataRow label={`CAC acquisition (${cacAssumptions.targetPts} pts)`} values={months.map((m) => m.cacAcq)} negative />
             {customMonthlyHi > 0 && (
               <DataRow label="Custom monthly" values={months.map((m) => m.customMonthly)} negative />
             )}
