@@ -3,6 +3,8 @@ import { SectionTag } from "@/components/ui/section-tag";
 import { KPICard } from "@/components/ui/kpi-card";
 import { InfoBox } from "@/components/ui/info-box";
 import { formatCurrency, clinicalCost, ZIVIAN } from "@/lib/budget-data";
+import { exportCashFlow } from "@/lib/export-cashflow";
+import { Download } from "lucide-react";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Line, ComposedChart,
 } from "recharts";
