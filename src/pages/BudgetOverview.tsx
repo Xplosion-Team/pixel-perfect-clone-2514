@@ -4,6 +4,7 @@ import { InfoBox } from "@/components/ui/info-box";
 import { BudgetSectionDisplay } from "@/components/BudgetSectionDisplay";
 import { BUDGET_DATA, formatCurrency } from "@/lib/budget-data";
 import { useCustomCosts } from "@/hooks/use-custom-costs";
+import { useCACLTVAssumptions } from "@/hooks/use-cac-ltv-assumptions";
 import { AddCostDialog } from "@/components/AddCostDialog";
 import { X } from "lucide-react";
 import {
