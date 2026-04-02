@@ -8,6 +8,7 @@ import BudgetOverview from "@/pages/BudgetOverview";
 import CashFlowModel from "@/pages/CashFlowModel";
 import FormationAnalysis from "@/pages/FormationAnalysis";
 import PatientEconomics from "@/pages/PatientEconomics";
+import CACtoLTV from "@/pages/CACtoLTV";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -24,6 +25,7 @@ const App = () => (
             <Route path="/cash-flow" element={<CashFlowModel />} />
             <Route path="/formation" element={<FormationAnalysis />} />
             <Route path="/economics" element={<PatientEconomics />} />
+            <Route path="/cac-ltv" element={<CACtoLTV />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>

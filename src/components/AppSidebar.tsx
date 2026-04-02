@@ -1,4 +1,4 @@
-import { DollarSign, Scale, BarChart3, Calculator } from "lucide-react";
+import { DollarSign, Scale, BarChart3, Calculator, TrendingUp } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import {
@@ -18,6 +18,7 @@ const items = [
   { title: "Cash Flow Model", url: "/cash-flow", icon: DollarSign, tourId: "nav-cashflow" },
   { title: "PC vs PLLC", url: "/formation", icon: Scale },
   { title: "Patient Economics", url: "/economics", icon: Calculator },
+  { title: "CAC to LTV", url: "/cac-ltv", icon: TrendingUp },
 ];
 
 export function AppSidebar() {
