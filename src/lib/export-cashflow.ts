@@ -75,6 +75,8 @@ export function exportCashFlow(months: any[], params: { capital: number }) {
     { label: "EHR", key: "ehr" },
     { label: "One-time/devices + legal", key: "ot" },
     { label: "Milestone bonuses", key: "milestone" },
+    { label: "CAC acquisition", key: "cacAcq" },
+    { label: "Custom monthly", key: "customMonthly" },
     { label: "— CLINICAL VARIABLE COSTS —", key: "_sec4" },
     { label: "RD ($34.50/pt)", key: "rd" },
     { label: "RN ($25.88/pt)", key: "rn" },
@@ -112,7 +114,7 @@ export function exportCashFlow(months: any[], params: { capital: number }) {
         set(r, c, `=${CELL(rowMap["mntR"], c)}+${CELL(rowMap["rpmR"], c)}`);
       } else if (sec.key === "totE") {
         // Sum of all expense rows
-        const expKeys = ["zv", "ehr", "ot", "milestone", "rd", "rn", "ma", "rpmTech", "bill"];
+        const expKeys = ["zv", "ehr", "ot", "milestone", "cacAcq", "customMonthly", "rd", "rn", "ma", "rpmTech", "bill"];
         const refs = expKeys.map((k) => CELL(rowMap[k], c)).join("+");
         set(r, c, `=${refs}`);
       } else if (sec.key === "net") {
