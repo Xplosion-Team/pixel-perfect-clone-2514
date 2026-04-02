@@ -86,11 +86,12 @@ export default function CashFlowModel() {
       if ([1, 2, 4, 6].includes(m)) o.milestone = 2000;
 
       o.customMonthly = customMonthlyHi;
+      o.cacAcq = m === 1 ? cacBudget : 0;
 
       const cl = clinicalCost(rp, o.totB);
       o.rd = cl.rd; o.rn = cl.rn; o.ma = cl.ma; o.rpmTech = cl.rpm; o.bill = cl.bill;
       o.clinTotal = cl.total;
-      o.totE = o.zv + o.ehr + o.ot + o.milestone + o.clinTotal + o.customMonthly;
+      o.totE = o.zv + o.ehr + o.ot + o.milestone + o.clinTotal + o.customMonthly + o.cacAcq;
       o.net = o.totR - o.totE;
       o.bal = (m === 1 ? capital : ms[m - 2].bal) + o.net;
       ms.push(o);
