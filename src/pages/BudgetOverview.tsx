@@ -3,6 +3,9 @@ import { KPICard } from "@/components/ui/kpi-card";
 import { InfoBox } from "@/components/ui/info-box";
 import { BudgetSectionDisplay } from "@/components/BudgetSectionDisplay";
 import { BUDGET_DATA, formatCurrency } from "@/lib/budget-data";
+import { useCustomCosts } from "@/hooks/use-custom-costs";
+import { AddCostDialog } from "@/components/AddCostDialog";
+import { X } from "lucide-react";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
 } from "recharts";
@@ -15,17 +18,19 @@ const sectionColors: Record<string, string> = {
 };
 
 export default function BudgetOverview() {
+  const { onetimeCosts, monthlyCosts, addCost, removeCost } = useCustomCosts();
+
   const ot = BUDGET_DATA.onetime;
   const pe = BUDGET_DATA.preenroll;
   const mo = BUDGET_DATA.monthly;
   const ml = BUDGET_DATA.milestones;
 
-  const oL = ot.items.reduce((a, i) => a + i.lo, 0);
-  const oH = ot.items.reduce((a, i) => a + i.hi, 0);
+  const oL = ot.items.reduce((a, i) => a + i.lo, 0) + onetimeCosts.reduce((a, c) => a + c.lo, 0);
+  const oH = ot.items.reduce((a, i) => a + i.hi, 0) + onetimeCosts.reduce((a, c) => a + c.hi, 0);
   const pL = pe.items.reduce((a, i) => a + i.lo, 0);
   const pH = pe.items.reduce((a, i) => a + i.hi, 0);
-  const mL = mo.items.reduce((a, i) => a + i.lo, 0);
-  const mH = mo.items.reduce((a, i) => a + i.hi, 0);
+  const mL = mo.items.reduce((a, i) => a + i.lo, 0) + monthlyCosts.reduce((a, c) => a + c.lo, 0);
+  const mH = mo.items.reduce((a, i) => a + i.hi, 0) + monthlyCosts.reduce((a, c) => a + c.hi, 0);
   const mlL = ml.items.reduce((a, i) => a + i.lo, 0);
   const mlH = ml.items.reduce((a, i) => a + i.hi, 0);
   const gL = oL + pL + mL * 3 + mlL;
@@ -67,6 +72,38 @@ export default function BudgetOverview() {
         {Object.entries(BUDGET_DATA).map(([key, section]) => (
           <BudgetSectionDisplay key={key} section={section} colorClass={sectionColors[key]} />
         ))}
+      </div>
+
+      {/* Custom costs section */}
+      {(onetimeCosts.length > 0 || monthlyCosts.length > 0) && (
+        <div className="mb-5">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-1.5 h-1.5 rounded-sm bg-amber" />
+            <div className="text-[11px] font-semibold uppercase tracking-[0.04em] text-foreground-secondary">
+              Custom costs
+            </div>
+          </div>
+          {onetimeCosts.map((c) => (
+            <div key={c.id} className="grid grid-cols-[1fr_80px_80px_auto] items-center py-1.5 border-b border-border">
+              <div className="text-[11px]">{c.name} <span className="text-foreground-muted">(one-time)</span></div>
+              <div className="font-mono text-[10px] text-right pr-2 text-foreground-secondary">{formatCurrency(c.lo)}</div>
+              <div className="font-mono text-[10px] text-right pr-2 font-medium">{formatCurrency(c.hi)}</div>
+              <button onClick={() => removeCost(c.id)} className="ml-1 p-0.5 rounded hover:bg-red-light text-foreground-muted hover:text-red transition-colors"><X className="w-3 h-3" /></button>
+            </div>
+          ))}
+          {monthlyCosts.map((c) => (
+            <div key={c.id} className="grid grid-cols-[1fr_80px_80px_auto] items-center py-1.5 border-b border-border">
+              <div className="text-[11px]">{c.name} <span className="text-foreground-muted">(monthly)</span></div>
+              <div className="font-mono text-[10px] text-right pr-2 text-foreground-secondary">{formatCurrency(c.lo)}</div>
+              <div className="font-mono text-[10px] text-right pr-2 font-medium">{formatCurrency(c.hi)}</div>
+              <button onClick={() => removeCost(c.id)} className="ml-1 p-0.5 rounded hover:bg-red-light text-foreground-muted hover:text-red transition-colors"><X className="w-3 h-3" /></button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="mb-5">
+        <AddCostDialog onAdd={addCost} />
       </div>
 
       <div className="h-px bg-border my-4" />

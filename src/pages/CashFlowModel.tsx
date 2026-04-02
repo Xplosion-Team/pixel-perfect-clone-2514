@@ -1,10 +1,12 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo } from "react";
 import { SectionTag } from "@/components/ui/section-tag";
 import { KPICard } from "@/components/ui/kpi-card";
 import { InfoBox } from "@/components/ui/info-box";
 import { formatCurrency, clinicalCost, ZIVIAN } from "@/lib/budget-data";
 import { exportCashFlow } from "@/lib/export-cashflow";
-import { Download } from "lucide-react";
+import { useCustomCosts } from "@/hooks/use-custom-costs";
+import { AddCostDialog } from "@/components/AddCostDialog";
+import { Download, X } from "lucide-react";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Line, ComposedChart,
 } from "recharts";
@@ -45,6 +47,11 @@ export default function CashFlowModel() {
   const [capital, setCapital] = useState(40000);
   const [visits, setVisits] = useState(2);
 
+  const { onetimeCosts, monthlyCosts, addCost, removeCost } = useCustomCosts();
+
+  const customOnetimeHi = onetimeCosts.reduce((a, c) => a + c.hi, 0);
+  const customMonthlyHi = monthlyCosts.reduce((a, c) => a + c.hi, 0);
+
   const months = useMemo(() => {
     const MR = 68, RR = 166, OT1 = 3125, DPP = 150, CRED = 3000, N = 12;
     const ms: any[] = [];
@@ -59,9 +66,7 @@ export default function CashFlowModel() {
       o.rpmB = rp * RR;
       o.totB = o.mntB + o.rpmB;
       o.mntR = m >= 2 && ms[m - 2] ? ms[m - 2].mntB : 0;
-      // CCM/RPM: 90-day initial delay (Mo1 paid Mo4), then 30-day cycle
       if (m >= 4) {
-        // Mo4: receive Mo1 billing. Mo5: receive Mo2. Mo6: receive Mo3. etc.
         o.rpmR = ms[m - 4].rpmB;
       } else {
         o.rpmR = 0;
@@ -70,23 +75,24 @@ export default function CashFlowModel() {
       o.zv = ZIVIAN;
       o.ehr = ehr;
       o.ot = 0;
-      if (m === 1) o.ot = OT1 + rpmStart * DPP + 3000; // +$3K legal/HC attorney PC license
+      if (m === 1) o.ot = OT1 + rpmStart * DPP + 3000 + customOnetimeHi;
       if (m === 2) o.ot = CRED;
 
-      // Milestone bonuses ($2,000 each at months 1, 2, 4, 6)
       o.milestone = 0;
       if ([1, 2, 4, 6].includes(m)) o.milestone = 2000;
+
+      o.customMonthly = customMonthlyHi;
 
       const cl = clinicalCost(rp, o.totB);
       o.rd = cl.rd; o.rn = cl.rn; o.ma = cl.ma; o.rpmTech = cl.rpm; o.bill = cl.bill;
       o.clinTotal = cl.total;
-      o.totE = o.zv + o.ehr + o.ot + o.milestone + o.clinTotal;
+      o.totE = o.zv + o.ehr + o.ot + o.milestone + o.clinTotal + o.customMonthly;
       o.net = o.totR - o.totE;
       o.bal = (m === 1 ? capital : ms[m - 2].bal) + o.net;
       ms.push(o);
     }
     return ms;
-  }, [mntPts, rpmStart, growth, ehr, capital, visits]);
+  }, [mntPts, rpmStart, growth, ehr, capital, visits, customOnetimeHi, customMonthlyHi]);
 
   const minBal = Math.min(...months.map((m) => m.bal));
   const trM = months.findIndex((m) => m.bal === minBal) + 1;
@@ -143,6 +149,35 @@ export default function CashFlowModel() {
         </div>
       </div>
 
+      {/* Custom costs */}
+      {(onetimeCosts.length > 0 || monthlyCosts.length > 0) && (
+        <div className="bg-card rounded-lg p-3.5 mb-4">
+          <h3 className="text-[9px] font-semibold uppercase tracking-[0.06em] text-foreground-secondary mb-2">Custom costs</h3>
+          {onetimeCosts.map((c) => (
+            <div key={c.id} className="flex items-center justify-between py-1 border-b border-border text-[10px]">
+              <span>{c.name} <span className="text-foreground-muted">(one-time)</span></span>
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-foreground-secondary">{formatCurrency(c.lo)} – {formatCurrency(c.hi)}</span>
+                <button onClick={() => removeCost(c.id)} className="p-0.5 rounded hover:bg-red-light text-foreground-muted hover:text-red transition-colors"><X className="w-3 h-3" /></button>
+              </div>
+            </div>
+          ))}
+          {monthlyCosts.map((c) => (
+            <div key={c.id} className="flex items-center justify-between py-1 border-b border-border text-[10px]">
+              <span>{c.name} <span className="text-foreground-muted">(monthly)</span></span>
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-foreground-secondary">{formatCurrency(c.lo)} – {formatCurrency(c.hi)}</span>
+                <button onClick={() => removeCost(c.id)} className="p-0.5 rounded hover:bg-red-light text-foreground-muted hover:text-red transition-colors"><X className="w-3 h-3" /></button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="mb-4">
+        <AddCostDialog onAdd={addCost} />
+      </div>
+
       {/* Revenue timeline bar */}
       <div data-tour="cf-timeline" className="flex rounded overflow-hidden h-4.5 text-[8px] font-semibold uppercase tracking-[0.03em] mb-3.5">
         <div className="flex-1 flex items-center justify-center text-primary-foreground bg-amber">Billing (Mo 1)</div>
@@ -180,6 +215,9 @@ export default function CashFlowModel() {
             <DataRow label="EHR" values={months.map((m) => m.ehr)} negative />
             <DataRow label="One-time/devices" values={months.map((m) => m.ot)} negative />
             <DataRow label="Milestone bonuses" values={months.map((m) => m.milestone)} negative />
+            {customMonthlyHi > 0 && (
+              <DataRow label="Custom monthly" values={months.map((m) => m.customMonthly)} negative />
+            )}
             <SectionRow label="Clinical variable costs (per patient, 15% burden loaded)" />
             <DataRow label="RD ($34.50/pt)" values={months.map((m) => m.rd)} negative />
             <DataRow label="RN ($25.88/pt)" values={months.map((m) => m.rn)} negative />
