@@ -11,12 +11,14 @@ const sectionColors: Record<string, string> = {
   onetime: "blue",
   preenroll: "green",
   monthly: "coral",
+  milestones: "blue",
 };
 
 export default function BudgetOverview() {
   const ot = BUDGET_DATA.onetime;
   const pe = BUDGET_DATA.preenroll;
   const mo = BUDGET_DATA.monthly;
+  const ml = BUDGET_DATA.milestones;
 
   const oL = ot.items.reduce((a, i) => a + i.lo, 0);
   const oH = ot.items.reduce((a, i) => a + i.hi, 0);
@@ -24,13 +26,16 @@ export default function BudgetOverview() {
   const pH = pe.items.reduce((a, i) => a + i.hi, 0);
   const mL = mo.items.reduce((a, i) => a + i.lo, 0);
   const mH = mo.items.reduce((a, i) => a + i.hi, 0);
-  const gL = oL + pL + mL * 3;
-  const gH = oH + pH + mH * 3;
+  const mlL = ml.items.reduce((a, i) => a + i.lo, 0);
+  const mlH = ml.items.reduce((a, i) => a + i.hi, 0);
+  const gL = oL + pL + mL * 3 + mlL;
+  const gH = oH + pH + mH * 3 + mlH;
 
   const chartData = [
     { name: "Upfront", lo: oL, hi: oH },
     { name: "Pre-enroll", lo: pL, hi: pH },
     { name: "3mo burn", lo: mL * 3, hi: mH * 3 },
+    { name: "Milestones", lo: mlL, hi: mlH },
     { name: "Total", lo: gL, hi: gH },
   ];
 
@@ -39,11 +44,11 @@ export default function BudgetOverview() {
       <SectionTag color="purple">Confidential — FareRX + Greens Health</SectionTag>
       <h1 className="text-2xl font-bold tracking-tight mb-1">Startup budget — variable cost model</h1>
       <p className="text-xs text-foreground-secondary mb-5 max-w-[720px] leading-relaxed">
-        PC + MSO + Non-Profit for CCM/RPM/MNT in PA. All clinical costs are variable per patient with 15% payroll burden loaded. RPM tech and billing/coding scale with volume. All programs launch Month 1. MNT cash Month 2, CCM/RPM cash Month 4.
+        PC + MSO + Non-Profit for CCM/RPM/MNT in PA. All clinical costs are variable per patient with 15% payroll burden loaded. RPM tech and billing/coding scale with volume. Launch April 2026 with 10 MNT patients. CCM/RPM cash arrives after 90-day delay then monthly. Capital range $40K–$60K.
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-5">
-        <KPICard color="purple" label="Total capital" value={`${formatCurrency(gL)} – ${formatCurrency(gH)}`} subtitle="Through month 3" />
+        <KPICard color="purple" label="Total capital" value={`${formatCurrency(gL)} – ${formatCurrency(gH)}`} subtitle="Through month 3 + milestones" />
         <KPICard color="coral" label="Monthly burn (30 pts)" value={`${formatCurrency(mL)} – ${formatCurrency(mH)}`} subtitle="Clinical variable + platform" />
         <KPICard color="green" label="Margin per patient" value="$51.62" subtitle="31% on CCM+RPM ($166)" />
       </div>
@@ -76,6 +81,7 @@ export default function BudgetOverview() {
           { label: "Upfront (immediate)", lo: oL, hi: oH },
           { label: "Pre-enrollment", lo: pL, hi: pH },
           { label: "3 months recurring", lo: mL * 3, hi: mH * 3 },
+          { label: "Milestone bonuses (6×$2K)", lo: mlL, hi: mlH },
         ].map((item) => (
           <div key={item.label} className="grid grid-cols-[1fr_80px_80px_1fr] items-center py-1.5 border-b border-border">
             <div className="text-[11px]">{item.label}</div>
@@ -111,14 +117,14 @@ export default function BudgetOverview() {
       </div>
 
       <InfoBox variant="success" title="31% gross margin per patient">
-        At $51.62/pt margin on CCM+RPM, you need only <strong>~20 patients</strong> to cover the fixed platform costs (Zivian $2,000 + EHR $650 = $2,650/mo). With MNT revenue on top (~$2,040/mo at 15 pts), break-even drops to <strong>~12 CCM/RPM patients</strong>. This is a much stronger unit economics story than fixed staffing models.
+        At $51.62/pt margin on CCM+RPM, you need only <strong>~20 patients</strong> to cover the fixed platform costs (Zivian $2,000 + EHR $650 = $2,650/mo). With MNT revenue on top (~$1,360/mo at 10 pts), break-even drops to <strong>~15 CCM/RPM patients</strong>.
       </InfoBox>
-      <InfoBox variant="question" title="Revenue timeline">
-        <strong>Mo 1:</strong> MNT + CCM + RPM billing starts. <strong>Mo 2:</strong> MNT cash arrives (~30d). <strong>Mo 4:</strong> CCM/RPM cash arrives (~90d). Variable clinical costs only incurred on active patients — no empty FTE burn.
+      <InfoBox variant="question" title="Revenue timeline (April start)">
+        <strong>Apr (Mo 1):</strong> MNT + CCM + RPM billing starts. <strong>May (Mo 2):</strong> MNT cash arrives (~30d). <strong>Jul (Mo 4):</strong> CCM/RPM cash arrives (90d delay), then monthly thereafter. Variable clinical costs only incurred on active patients — no empty FTE burn.
       </InfoBox>
 
       <div className="mt-8 pt-3 border-t border-border flex justify-between text-[9px] text-foreground-muted">
-        <span>March 2026 — Kehlin Swain, Greens Health</span>
+        <span>April 2026 — Kehlin Swain, Greens Health</span>
         <span>kehlin.swain@greens.health</span>
       </div>
     </>

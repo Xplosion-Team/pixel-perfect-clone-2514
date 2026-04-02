@@ -34,8 +34,7 @@ export const BUDGET_DATA: Record<string, BudgetSection> = {
     color: "blue",
     max: 6000,
     items: [
-      { label: "Healthcare attorney", lo: 3000, hi: 3000 },
-      { label: "PC filing", lo: 125, hi: 125 },
+      { label: "Healthcare attorney + PC filing", lo: 3000, hi: 3125 },
       { label: "Name reservation", lo: 0, hi: 70 },
       { label: "EHR setup", lo: 0, hi: 1225 },
       { label: "RPM devices (30 pts)", lo: 1200, hi: 5250 },
@@ -51,7 +50,7 @@ export const BUDGET_DATA: Record<string, BudgetSection> = {
     ],
   },
   monthly: {
-    title: "Monthly recurring (at 30 CCM/RPM + 15 MNT pts)",
+    title: "Monthly recurring (at 30 CCM/RPM + 10 MNT pts)",
     color: "coral",
     max: 1400,
     items: [
@@ -64,6 +63,19 @@ export const BUDGET_DATA: Record<string, BudgetSection> = {
       { label: "RPM Tech ($25.83 × 30 pts)", lo: 775, hi: 775 },
       { label: "Billing & coding (4.5% of ~$7K)", lo: 315, hi: 315 },
       { label: "Prior auth (optional)", lo: 0, hi: 260 },
+    ],
+  },
+  milestones: {
+    title: "Milestone bonuses ($2,000 each)",
+    color: "blue",
+    max: 12000,
+    items: [
+      { label: "Month 1 launch bonus", lo: 2000, hi: 2000 },
+      { label: "Month 2 bonus", lo: 2000, hi: 2000 },
+      { label: "Month 4 bonus", lo: 2000, hi: 2000 },
+      { label: "Month 6 bonus", lo: 2000, hi: 2000 },
+      { label: "30-patient milestone", lo: 2000, hi: 2000 },
+      { label: "60-patient milestone", lo: 2000, hi: 2000 },
     ],
   },
 };
