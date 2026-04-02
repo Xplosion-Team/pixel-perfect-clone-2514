@@ -15,7 +15,7 @@ import {
 
 const items = [
   { title: "Budget Overview", url: "/", icon: BarChart3 },
-  { title: "Cash Flow Model", url: "/cash-flow", icon: DollarSign },
+  { title: "Cash Flow Model", url: "/cash-flow", icon: DollarSign, tourId: "nav-cashflow" },
   { title: "PC vs PLLC", url: "/formation", icon: Scale },
 ];
 
@@ -45,6 +45,7 @@ export function AppSidebar() {
                       end
                       className="hover:bg-accent"
                       activeClassName="bg-accent text-foreground font-medium"
+                      {...(item.tourId ? { "data-tour": item.tourId } : {})}
                     >
                       <item.icon className="mr-2 h-4 w-4" />
                       {!collapsed && <span>{item.title}</span>}

@@ -111,6 +111,7 @@ export default function CashFlowModel() {
       <div className="flex items-center justify-between mb-1">
         <h1 className="text-2xl font-bold tracking-tight">Cash-in-account model</h1>
         <button
+          data-tour="cf-export"
           onClick={() => exportCashFlow(months, { capital })}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-accent text-accent-foreground text-xs font-semibold hover:opacity-80 transition-opacity"
         >
@@ -122,7 +123,7 @@ export default function CashFlowModel() {
         Actual bank balance. All clinical costs variable per patient (RD, RN, MA, RPM Tech loaded + billing 4.5%). Platform costs (Zivian + EHR) are fixed. MNT cash Month 2, CCM/RPM cash Month 4.
       </p>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-5">
+      <div data-tour="cf-kpis" className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-5">
         <KPICard color={minBal < 0 ? "red" : "green"} label="Lowest balance" value={<span className={minBal < 0 ? "text-red" : "text-green"}>{formatCurrency(minBal)}</span>} subtitle={`Month ${trM}`} />
         <KPICard color="blue" label="Cash-positive month" value={fp >= 0 ? `Month ${fp + 1}` : "N/A"} subtitle="Net inflow > outflow" />
         <KPICard color="coral" label="Y1 expenses" value={formatCurrency(tE)} subtitle={`Clinical: ${formatCurrency(tClin)} (${Math.round((tClin / tE) * 100)}%)`} />
@@ -130,7 +131,7 @@ export default function CashFlowModel() {
       </div>
 
       {/* Sliders */}
-      <div className="bg-card rounded-lg p-3.5 mb-4">
+      <div data-tour="cf-sliders" className="bg-card rounded-lg p-3.5 mb-4">
         <h3 className="text-[9px] font-semibold uppercase tracking-[0.06em] text-foreground-secondary mb-2">Adjust assumptions</h3>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5">
           <SliderField label="MNT patients" min={5} max={40} step={1} value={mntPts} onChange={setMntPts} display={`${mntPts} pts × ${visits} visits × $68`} />
@@ -143,7 +144,7 @@ export default function CashFlowModel() {
       </div>
 
       {/* Revenue timeline bar */}
-      <div className="flex rounded overflow-hidden h-4.5 text-[8px] font-semibold uppercase tracking-[0.03em] mb-3.5">
+      <div data-tour="cf-timeline" className="flex rounded overflow-hidden h-4.5 text-[8px] font-semibold uppercase tracking-[0.03em] mb-3.5">
         <div className="flex-1 flex items-center justify-center text-primary-foreground bg-amber">Billing (Mo 1)</div>
         <div className="flex-1 flex items-center justify-center text-primary-foreground bg-teal">MNT $ (Mo 2)</div>
         <div className="flex-[2] flex items-center justify-center text-primary-foreground bg-blue">CCM/RPM $ (Mo 4)</div>
@@ -151,7 +152,7 @@ export default function CashFlowModel() {
       </div>
 
       {/* Table */}
-      <div className="text-xs font-semibold uppercase tracking-[0.04em] text-foreground-secondary mb-2">Month-by-month cash flow</div>
+      <div data-tour="cf-table" className="text-xs font-semibold uppercase tracking-[0.04em] text-foreground-secondary mb-2">Month-by-month cash flow</div>
       <div className="overflow-x-auto mb-4 -mx-4 px-4 pb-6 md:mx-0 md:px-0 md:pb-0 scrollbar-thin" style={{ WebkitOverflowScrolling: "touch" }}>
         <table className="w-full border-collapse text-[9px]">
           <thead>

@@ -47,7 +47,7 @@ export default function BudgetOverview() {
         PC + MSO + Non-Profit for CCM/RPM/MNT in PA. All clinical costs are variable per patient with 15% payroll burden loaded. RPM tech and billing/coding scale with volume. Launch April 2026 with 10 MNT patients. CCM/RPM cash arrives after 90-day delay then monthly. Capital range $40K–$60K.
       </p>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-5">
+      <div data-tour="kpi-cards" className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-5">
         <KPICard color="purple" label="Total capital" value={`${formatCurrency(gL)} – ${formatCurrency(gH)}`} subtitle="Through month 3 + milestones" />
         <KPICard color="coral" label="Monthly burn (30 pts)" value={`${formatCurrency(mL)} – ${formatCurrency(mH)}`} subtitle="Clinical variable + platform" />
         <KPICard color="green" label="Margin per patient" value="$51.62" subtitle="31% on CCM+RPM ($166)" />
@@ -63,9 +63,11 @@ export default function BudgetOverview() {
         <p className="mt-2"><strong>Billing & coding: 4.5%</strong> of collections. Total variable: <strong>$106.91 + 4.5% = ~$114.38/pt/mo.</strong> Margin on CCM+RPM ($166): <strong>$51.62/pt (31.1%)</strong></p>
       </InfoBox>
 
-      {Object.entries(BUDGET_DATA).map(([key, section]) => (
-        <BudgetSectionDisplay key={key} section={section} colorClass={sectionColors[key]} />
-      ))}
+      <div data-tour="budget-sections">
+        {Object.entries(BUDGET_DATA).map(([key, section]) => (
+          <BudgetSectionDisplay key={key} section={section} colorClass={sectionColors[key]} />
+        ))}
+      </div>
 
       <div className="h-px bg-border my-4" />
 
@@ -99,7 +101,7 @@ export default function BudgetOverview() {
       </div>
 
       {/* Chart */}
-      <div className="bg-card rounded-lg p-3 mb-1">
+      <div data-tour="budget-chart" className="bg-card rounded-lg p-3 mb-1">
         <ResponsiveContainer width="100%" height={220}>
           <BarChart data={chartData} barCategoryGap="30%">
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(0 0% 0% / 0.04)" vertical={false} />
