@@ -77,12 +77,30 @@ const formationSteps: Step[] = [
 ];
 
 const joyrideStyles = {
-  options: {
-    arrowColor: "hsl(40, 14%, 97%)",
+  tooltip: {
+    borderRadius: 10,
+    fontSize: 13,
+    padding: "16px 20px",
     backgroundColor: "hsl(40, 14%, 97%)",
-    textColor: "hsl(48, 6%, 10%)",
-    primaryColor: "hsl(48, 96%, 53%)",
-    zIndex: 10000,
+    color: "hsl(48, 6%, 10%)",
+  },
+  buttonPrimary: {
+    backgroundColor: "hsl(48, 96%, 53%)",
+    color: "hsl(0, 0%, 7%)",
+    borderRadius: 6,
+    fontSize: 12,
+    fontWeight: 600,
+  },
+  buttonBack: {
+    color: "hsl(48, 4%, 36%)",
+    fontSize: 12,
+  },
+  buttonSkip: {
+    color: "hsl(48, 4%, 56%)",
+    fontSize: 11,
+  },
+  spotlight: {
+    borderRadius: 8,
   },
 };
 
