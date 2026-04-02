@@ -29,6 +29,5 @@ export function Layout() {
       <MobileTabBar />
       <AppTour />
     </SidebarProvider>
-    </SidebarProvider>
   );
 }
