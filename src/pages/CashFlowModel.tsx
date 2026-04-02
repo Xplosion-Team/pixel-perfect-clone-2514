@@ -73,14 +73,9 @@ export default function CashFlowModel() {
       if (m === 1) o.ot = OT1 + rpmStart * DPP + 3000; // +$3K legal/HC attorney PC license
       if (m === 2) o.ot = CRED;
 
-      // Milestone bonuses ($2,000 each)
+      // Milestone bonuses ($2,000 each at months 1, 2, 4, 6)
       o.milestone = 0;
-      // Time-based milestones
-      if ([1, 2, 4, 6].includes(m)) o.milestone += 2000;
-      // Patient-count milestones (trigger once when crossing 30 or 60)
-      const prevRp = m > 1 ? ms[m - 2].rpmPts : 0;
-      if (prevRp < 30 && rp >= 30) o.milestone += 2000;
-      if (prevRp < 60 && rp >= 60) o.milestone += 2000;
+      if ([1, 2, 4, 6].includes(m)) o.milestone = 2000;
 
       const cl = clinicalCost(rp, o.totB);
       o.rd = cl.rd; o.rn = cl.rn; o.ma = cl.ma; o.rpmTech = cl.rpm; o.bill = cl.bill;

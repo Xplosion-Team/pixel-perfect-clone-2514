@@ -68,14 +68,12 @@ export const BUDGET_DATA: Record<string, BudgetSection> = {
   milestones: {
     title: "Milestone bonuses ($2,000 each)",
     color: "blue",
-    max: 12000,
+    max: 8000,
     items: [
       { label: "Month 1 launch bonus", lo: 2000, hi: 2000 },
       { label: "Month 2 bonus", lo: 2000, hi: 2000 },
       { label: "Month 4 bonus", lo: 2000, hi: 2000 },
       { label: "Month 6 bonus", lo: 2000, hi: 2000 },
-      { label: "30-patient milestone", lo: 2000, hi: 2000 },
-      { label: "60-patient milestone", lo: 2000, hi: 2000 },
     ],
   },
 };
