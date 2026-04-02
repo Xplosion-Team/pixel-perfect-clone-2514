@@ -75,6 +75,8 @@ export function exportCashFlow(months: any[], params: { capital: number }) {
     { label: "EHR", key: "ehr" },
     { label: "One-time/devices + legal", key: "ot" },
     { label: "Milestone bonuses", key: "milestone" },
+    { label: "CAC acquisition", key: "cacAcq" },
+    { label: "Custom monthly", key: "customMonthly" },
     { label: "— CLINICAL VARIABLE COSTS —", key: "_sec4" },
     { label: "RD ($34.50/pt)", key: "rd" },
     { label: "RN ($25.88/pt)", key: "rn" },
