@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
 import { SectionTag } from "@/components/ui/section-tag";
 import { KPICard } from "@/components/ui/kpi-card";
 import { InfoBox } from "@/components/ui/info-box";
@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatCurrency } from "@/lib/budget-data";
+import { useCACLTVAssumptions } from "@/hooks/use-cac-ltv-assumptions";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Line, ComposedChart,
 } from "recharts";
@@ -31,29 +32,16 @@ function SliderRow({ label, value, min, max, step, format, onChange }: SliderRow
 }
 
 export default function CACtoLTV() {
-  // Shared
-  const [patients, setPatients] = useState(100);
-  // Economics
-  const [rdRate, setRdRate] = useState(40);
-  const [rnRate, setRnRate] = useState(45);
-  const [maRate, setMaRate] = useState(24);
-  const [haRate, setHaRate] = useState(16);
-  const [rcRate, setRcRate] = useState(4);
-  const [rdHrs, setRdHrs] = useState(0.75);
-  const [rnHrs, setRnHrs] = useState(0.50);
-  const [maHrs, setMaHrs] = useState(0.75);
-  const [billingPct, setBillingPct] = useState(4.5);
-  const [revPt, setRevPt] = useState(166);
-  // CAC
-  const [cacDevice, setCacDevice] = useState(150);
-  const [cacMktg, setCacMktg] = useState(0);
-  const [cacOnboard, setCacOnboard] = useState(0);
-  // LTV
-  const [ltvMonths, setLtvMonths] = useState(24);
-  // Budget
-  const [targetPts, setTargetPts] = useState(100);
-  const [rampMo, setRampMo] = useState(3);
-  const [fixedCost, setFixedCost] = useState(2650);
+  const { assumptions: a, updateAssumption, loaded } = useCACLTVAssumptions();
+
+  const patients = a.patients;
+  const rdRate = a.rdRate, rnRate = a.rnRate, maRate = a.maRate;
+  const haRate = a.haRate, rcRate = a.rcRate;
+  const rdHrs = a.rdHrs, rnHrs = a.rnHrs, maHrs = a.maHrs;
+  const billingPct = a.billingPct, revPt = a.revPt;
+  const cacDevice = a.cacDevice, cacMktg = a.cacMktg, cacOnboard = a.cacOnboard;
+  const ltvMonths = a.ltvMonths;
+  const targetPts = a.targetPts, rampMo = a.rampMo, fixedCost = a.fixedCost;
 
   const econ = useMemo(() => {
     const rdL = rdRate * rdHrs * BURDEN;
