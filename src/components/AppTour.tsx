@@ -146,8 +146,6 @@ export function AppTour() {
       steps={steps}
       run={run}
       continuous
-      showSkipButton
-      showProgress
       scrollToFirstStep
       onEvent={handleEvent}
       styles={joyrideStyles}
