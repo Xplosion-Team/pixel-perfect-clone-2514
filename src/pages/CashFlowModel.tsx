@@ -57,7 +57,13 @@ export default function CashFlowModel() {
       o.rpmB = rp * RR;
       o.totB = o.mntB + o.rpmB;
       o.mntR = m >= 2 && ms[m - 2] ? ms[m - 2].mntB : 0;
-      o.rpmR = m >= 4 && ms[m - 4] ? ms[m - 4].rpmB : 0;
+      // CCM/RPM: 90-day initial delay (Mo1 paid Mo4), then 30-day cycle
+      if (m >= 4) {
+        // Mo4: receive Mo1 billing. Mo5: receive Mo2. Mo6: receive Mo3. etc.
+        o.rpmR = ms[m - 4].rpmB;
+      } else {
+        o.rpmR = 0;
+      }
       o.totR = o.mntR + o.rpmR;
       o.zv = ZIVIAN;
       o.ehr = ehr;
