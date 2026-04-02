@@ -406,7 +406,7 @@ export default function CACtoLTV() {
                 <p className="text-[13px] font-medium">Revenue per patient / month</p>
                 <p className="text-xs text-foreground-muted">Stacked CCM + RPM · 2026 Medicare rates</p>
               </div>
-              <Slider value={[revPt]} min={100} max={250} step={1} onValueChange={([v]) => ((v: number) => updateAssumption("revPt", v))(v)} className="flex-1 min-w-[120px]" />
+              <Slider value={[revPt]} min={100} max={250} step={1} onValueChange={([v]) => updateAssumption("revPt", v)} className="flex-1 min-w-[120px]" />
               <span className="font-mono text-xl font-medium text-green min-w-[80px] text-right">${revPt}</span>
             </CardContent>
           </Card>
