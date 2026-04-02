@@ -138,7 +138,7 @@ export default function CACtoLTV() {
             <p className="text-sm font-medium text-foreground">Active patients</p>
             <p className="text-xs text-foreground-muted">Drives all sections</p>
           </div>
-          <Slider value={[patients]} min={10} max={300} step={5} onValueChange={([v]) => setPatients(v)} className="flex-[2] min-w-[160px]" />
+          <Slider value={[patients]} min={10} max={300} step={5} onValueChange={([v]) => ((v: number) => updateAssumption("patients", v))(v)} className="flex-[2] min-w-[160px]" />
           <span className="font-mono text-3xl font-medium text-foreground min-w-[52px] text-right">{patients}</span>
         </CardContent>
       </Card>
@@ -239,14 +239,14 @@ export default function CACtoLTV() {
             <Card>
               <CardContent className="p-5">
                 <p className="text-[13px] font-medium pb-3 border-b border-border mb-4">Acquisition targets</p>
-                <SliderRow label="Target patients" value={targetPts} min={25} max={300} step={5} format={(v) => `${v} pts`} onChange={setTargetPts} />
-                <SliderRow label="Ramp (months)" value={rampMo} min={1} max={12} step={1} format={(v) => `${v} mo`} onChange={setRampMo} />
+                <SliderRow label="Target patients" value={targetPts} min={25} max={300} step={5} format={(v) => `${v} pts`} onChange={((v: number) => updateAssumption("targetPts", v))} />
+                <SliderRow label="Ramp (months)" value={rampMo} min={1} max={12} step={1} format={(v) => `${v} mo`} onChange={((v: number) => updateAssumption("rampMo", v))} />
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-5">
                 <p className="text-[13px] font-medium pb-3 border-b border-border mb-4">Cost basis</p>
-                <SliderRow label="Fixed cost / mo" value={fixedCost} min={1000} max={10000} step={250} format={(v) => fmt(v)} onChange={setFixedCost} />
+                <SliderRow label="Fixed cost / mo" value={fixedCost} min={1000} max={10000} step={250} format={(v) => fmt(v)} onChange={((v: number) => updateAssumption("fixedCost", v))} />
                 <SliderRow label="Variable cost / pt" value={Math.round(econ.tv)} min={60} max={160} step={1} format={(v) => fmt(v)} onChange={() => {}} />
               </CardContent>
             </Card>
@@ -380,11 +380,11 @@ export default function CACtoLTV() {
                   <span className="text-[11px] font-medium bg-blue-light text-blue px-2.5 py-0.5 rounded-full">RingCentral ${rcRate}/pt</span>
                 </div>
                 <p className="text-[13px] font-medium pb-3 border-b border-border mb-4">Hourly rates</p>
-                <SliderRow label="RD rate" value={rdRate} min={25} max={70} step={1} format={(v) => `$${v}/hr`} onChange={setRdRate} />
-                <SliderRow label="RN rate" value={rnRate} min={30} max={80} step={1} format={(v) => `$${v}/hr`} onChange={setRnRate} />
-                <SliderRow label="MA rate" value={maRate} min={15} max={40} step={1} format={(v) => `$${v}/hr`} onChange={setMaRate} />
-                <SliderRow label="HealthArc" value={haRate} min={8} max={40} step={1} format={(v) => `$${v}/pt`} onChange={setHaRate} />
-                <SliderRow label="RingCentral" value={rcRate} min={0} max={15} step={1} format={(v) => `$${v}/pt`} onChange={setRcRate} />
+                <SliderRow label="RD rate" value={rdRate} min={25} max={70} step={1} format={(v) => `$${v}/hr`} onChange={((v: number) => updateAssumption("rdRate", v))} />
+                <SliderRow label="RN rate" value={rnRate} min={30} max={80} step={1} format={(v) => `$${v}/hr`} onChange={((v: number) => updateAssumption("rnRate", v))} />
+                <SliderRow label="MA rate" value={maRate} min={15} max={40} step={1} format={(v) => `$${v}/hr`} onChange={((v: number) => updateAssumption("maRate", v))} />
+                <SliderRow label="HealthArc" value={haRate} min={8} max={40} step={1} format={(v) => `$${v}/pt`} onChange={((v: number) => updateAssumption("haRate", v))} />
+                <SliderRow label="RingCentral" value={rcRate} min={0} max={15} step={1} format={(v) => `$${v}/pt`} onChange={((v: number) => updateAssumption("rcRate", v))} />
               </CardContent>
             </Card>
             <Card>
@@ -392,10 +392,10 @@ export default function CACtoLTV() {
                 <p className="text-[13px] font-medium pb-3 border-b border-border mb-4">
                   Time per patient / month <span className="text-foreground-muted font-normal text-xs ml-2">CCM min = 20 min</span>
                 </p>
-                <SliderRow label="RD time" value={rdHrs} min={0.1} max={2} step={0.05} format={(v) => `${v.toFixed(2)} hr`} onChange={setRdHrs} />
-                <SliderRow label="RN time" value={rnHrs} min={0.1} max={2} step={0.05} format={(v) => `${v.toFixed(2)} hr`} onChange={setRnHrs} />
-                <SliderRow label="MA time" value={maHrs} min={0.1} max={2} step={0.05} format={(v) => `${v.toFixed(2)} hr`} onChange={setMaHrs} />
-                <SliderRow label="Billing %" value={billingPct} min={2} max={8} step={0.1} format={(v) => `${v.toFixed(1)}%`} onChange={setBillingPct} />
+                <SliderRow label="RD time" value={rdHrs} min={0.1} max={2} step={0.05} format={(v) => `${v.toFixed(2)} hr`} onChange={((v: number) => updateAssumption("rdHrs", v))} />
+                <SliderRow label="RN time" value={rnHrs} min={0.1} max={2} step={0.05} format={(v) => `${v.toFixed(2)} hr`} onChange={((v: number) => updateAssumption("rnHrs", v))} />
+                <SliderRow label="MA time" value={maHrs} min={0.1} max={2} step={0.05} format={(v) => `${v.toFixed(2)} hr`} onChange={((v: number) => updateAssumption("maHrs", v))} />
+                <SliderRow label="Billing %" value={billingPct} min={2} max={8} step={0.1} format={(v) => `${v.toFixed(1)}%`} onChange={((v: number) => updateAssumption("billingPct", v))} />
               </CardContent>
             </Card>
           </div>
@@ -406,7 +406,7 @@ export default function CACtoLTV() {
                 <p className="text-[13px] font-medium">Revenue per patient / month</p>
                 <p className="text-xs text-foreground-muted">Stacked CCM + RPM · 2026 Medicare rates</p>
               </div>
-              <Slider value={[revPt]} min={100} max={250} step={1} onValueChange={([v]) => setRevPt(v)} className="flex-1 min-w-[120px]" />
+              <Slider value={[revPt]} min={100} max={250} step={1} onValueChange={([v]) => ((v: number) => updateAssumption("revPt", v))(v)} className="flex-1 min-w-[120px]" />
               <span className="font-mono text-xl font-medium text-green min-w-[80px] text-right">${revPt}</span>
             </CardContent>
           </Card>
@@ -488,15 +488,15 @@ export default function CACtoLTV() {
                 <p className="text-[13px] font-medium pb-3 border-b border-border mb-4">
                   CAC components <span className="text-foreground-muted font-normal text-xs ml-2">one-time, per new patient</span>
                 </p>
-                <SliderRow label="RPM device" value={cacDevice} min={0} max={300} step={5} format={(v) => fmt(v)} onChange={setCacDevice} />
-                <SliderRow label="Marketing / outreach" value={cacMktg} min={0} max={200} step={5} format={(v) => fmt(v)} onChange={setCacMktg} />
-                <SliderRow label="Onboarding labor" value={cacOnboard} min={0} max={100} step={5} format={(v) => fmt(v)} onChange={setCacOnboard} />
+                <SliderRow label="RPM device" value={cacDevice} min={0} max={300} step={5} format={(v) => fmt(v)} onChange={((v: number) => updateAssumption("cacDevice", v))} />
+                <SliderRow label="Marketing / outreach" value={cacMktg} min={0} max={200} step={5} format={(v) => fmt(v)} onChange={((v: number) => updateAssumption("cacMktg", v))} />
+                <SliderRow label="Onboarding labor" value={cacOnboard} min={0} max={100} step={5} format={(v) => fmt(v)} onChange={((v: number) => updateAssumption("cacOnboard", v))} />
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-5">
                 <p className="text-[13px] font-medium pb-3 border-b border-border mb-4">LTV inputs</p>
-                <SliderRow label="Avg retention" value={ltvMonths} min={3} max={60} step={1} format={(v) => `${v} mo`} onChange={setLtvMonths} />
+                <SliderRow label="Avg retention" value={ltvMonths} min={3} max={60} step={1} format={(v) => `${v} mo`} onChange={((v: number) => updateAssumption("ltvMonths", v))} />
                 <SliderRow label="Gross profit/pt/mo" value={Math.round(econ.gpPerPt)} min={10} max={120} step={1} format={(v) => fmt(v)} onChange={() => {}} />
               </CardContent>
             </Card>
