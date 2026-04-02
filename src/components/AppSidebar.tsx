@@ -45,6 +45,7 @@ export function AppSidebar() {
                       end
                       className="hover:bg-accent"
                       activeClassName="bg-accent text-foreground font-medium"
+                      {...(item.tourId ? { "data-tour": item.tourId } : {})}
                     >
                       <item.icon className="mr-2 h-4 w-4" />
                       {!collapsed && <span>{item.title}</span>}
