@@ -150,6 +150,9 @@ export function AppTour() {
     } else if (path === "/formation") {
       key = `${TOUR_KEY}-formation`;
       s = formationSteps;
+    } else if (path === "/economics") {
+      key = `${TOUR_KEY}-economics`;
+      s = economicsSteps;
     }
 
     if (key && !localStorage.getItem(key)) {
