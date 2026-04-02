@@ -36,11 +36,11 @@ function SliderField({ label, min, max, step, value, onChange, display }: Slider
 }
 
 export default function CashFlowModel() {
-  const [mntPts, setMntPts] = useState(15);
+  const [mntPts, setMntPts] = useState(10);
   const [rpmStart, setRpmStart] = useState(30);
   const [growth, setGrowth] = useState(10);
   const [ehr, setEhr] = useState(650);
-  const [capital, setCapital] = useState(35000);
+  const [capital, setCapital] = useState(40000);
   const [visits, setVisits] = useState(2);
 
   const months = useMemo(() => {
