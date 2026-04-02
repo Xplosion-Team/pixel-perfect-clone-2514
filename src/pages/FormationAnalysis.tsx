@@ -201,7 +201,7 @@ export default function FormationAnalysis() {
         Nothing else can start until the Board approves. The 2-8 week wait cannot be shortened. Begin credentialing immediately after filing — credentialing (60-120 days) runs in parallel and is the second longest lead time. Plan for first patient enrollment 4-5 months from today.
       </InfoBox>
 
-      <div className="relative pl-7 my-4">
+      <div data-tour="formation-timeline" className="relative pl-7 my-4">
         <div className="absolute left-2 top-1 bottom-1 w-0.5 bg-background-muted rounded-sm" />
         {timelineItems.map((item, i) => (
           <div key={i} className="relative mb-4">
