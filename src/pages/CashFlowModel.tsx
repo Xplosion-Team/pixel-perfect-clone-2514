@@ -220,6 +220,7 @@ export default function CashFlowModel() {
             <DataRow label="EHR" values={months.map((m) => m.ehr)} negative />
             <DataRow label="One-time/devices" values={months.map((m) => m.ot)} negative />
             <DataRow label="Milestone bonuses" values={months.map((m) => m.milestone)} negative />
+            <DataRow label={`CAC acquisition (${cacAssumptions.targetPts} pts)`} values={months.map((m) => m.cacAcq)} negative />
             {customMonthlyHi > 0 && (
               <DataRow label="Custom monthly" values={months.map((m) => m.customMonthly)} negative />
             )}
