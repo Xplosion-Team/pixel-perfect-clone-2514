@@ -125,7 +125,7 @@ export default function CashFlowModel() {
           <SliderField label="CCM+RPM patients (Mo 1)" min={5} max={80} step={5} value={rpmStart} onChange={setRpmStart} display={`${rpmStart} pts @ $166/pt`} />
           <SliderField label="Monthly growth" min={0} max={25} step={5} value={growth} onChange={setGrowth} display={`+${growth} pts/mo`} />
           <SliderField label="EHR cost" min={400} max={1200} step={50} value={ehr} onChange={setEhr} display={`$${ehr}/mo`} />
-          <SliderField label="Starting capital" min={5000} max={40000} step={1000} value={capital} onChange={setCapital} display={`$${capital.toLocaleString()}`} />
+          <SliderField label="Starting capital" min={40000} max={60000} step={1000} value={capital} onChange={setCapital} display={`$${capital.toLocaleString()}`} />
           <SliderField label="MNT visits/pt/mo" min={1} max={4} step={1} value={visits} onChange={setVisits} display={`${visits} visits @ $68`} />
         </div>
       </div>
