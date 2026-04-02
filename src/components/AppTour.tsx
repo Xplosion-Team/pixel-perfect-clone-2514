@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from "react";
-import Joyride, { CallBackProps, STATUS, Step } from "react-joyride";
+import { useState, useEffect } from "react";
+import { Joyride, STATUS, type Step, type EventData, type Controls } from "react-joyride";
 import { useLocation } from "react-router-dom";
 
 const TOUR_KEY = "farerx-tour-completed";
@@ -9,7 +9,7 @@ const budgetSteps: Step[] = [
     target: "[data-tour='brand']",
     content: "Welcome to FareRX — your complete financial planning tool for launching a physician-owned practice. Let's take a quick tour!",
     placement: "bottom",
-    disableBeacon: true,
+    skipBeacon: true,
   },
   {
     target: "[data-tour='kpi-cards']",
@@ -38,7 +38,7 @@ const cashflowSteps: Step[] = [
     target: "[data-tour='cf-kpis']",
     content: "These cards show your lowest projected balance, when you become cash-positive, total expenses, and total revenue.",
     placement: "bottom",
-    disableBeacon: true,
+    skipBeacon: true,
   },
   {
     target: "[data-tour='cf-sliders']",
@@ -67,7 +67,7 @@ const formationSteps: Step[] = [
     target: "[data-tour='formation-compare']",
     content: "Compare PC vs PLLC formation structures side by side — costs, compliance requirements, and long-term implications.",
     placement: "bottom",
-    disableBeacon: true,
+    skipBeacon: true,
   },
   {
     target: "[data-tour='formation-timeline']",
@@ -83,38 +83,6 @@ const joyrideStyles = {
     textColor: "hsl(48, 6%, 10%)",
     primaryColor: "hsl(48, 96%, 53%)",
     zIndex: 10000,
-  },
-  tooltip: {
-    borderRadius: 10,
-    fontSize: 13,
-    padding: "16px 20px",
-  },
-  tooltipTitle: {
-    fontSize: 15,
-    fontWeight: 700,
-  },
-  buttonNext: {
-    backgroundColor: "hsl(48, 96%, 53%)",
-    color: "hsl(0, 0%, 7%)",
-    borderRadius: 6,
-    fontSize: 12,
-    fontWeight: 600,
-    padding: "8px 16px",
-  },
-  buttonBack: {
-    color: "hsl(48, 4%, 36%)",
-    fontSize: 12,
-    fontWeight: 500,
-  },
-  buttonSkip: {
-    color: "hsl(48, 4%, 56%)",
-    fontSize: 11,
-  },
-  buttonClose: {
-    color: "hsl(48, 4%, 56%)",
-  },
-  spotlight: {
-    borderRadius: 8,
   },
 };
 
@@ -143,23 +111,18 @@ export function AppTour() {
     if (key && !localStorage.getItem(key)) {
       setSteps(s);
       setTourKey(key);
-      // Small delay to let page render
       setTimeout(() => setRun(true), 600);
     } else {
       setRun(false);
     }
   }, [location.pathname]);
 
-  const handleCallback = useCallback(
-    (data: CallBackProps) => {
-      const { status } = data;
-      if (status === STATUS.FINISHED || status === STATUS.SKIPPED) {
-        setRun(false);
-        if (tourKey) localStorage.setItem(tourKey, "true");
-      }
-    },
-    [tourKey]
-  );
+  const handleEvent = (data: EventData, _controls: Controls) => {
+    if (data.status === STATUS.FINISHED || data.status === STATUS.SKIPPED) {
+      setRun(false);
+      if (tourKey) localStorage.setItem(tourKey, "true");
+    }
+  };
 
   if (!steps.length) return null;
 
@@ -171,7 +134,7 @@ export function AppTour() {
       showSkipButton
       showProgress
       scrollToFirstStep
-      callback={handleCallback}
+      onEvent={handleEvent}
       styles={joyrideStyles}
       locale={{
         back: "Back",
