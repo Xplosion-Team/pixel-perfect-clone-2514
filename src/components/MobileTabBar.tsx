@@ -1,4 +1,4 @@
-import { BarChart3, DollarSign, Scale } from "lucide-react";
+import { BarChart3, DollarSign, Scale, Calculator } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 
 const tabs = [
