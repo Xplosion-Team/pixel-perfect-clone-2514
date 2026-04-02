@@ -138,7 +138,7 @@ export default function CACtoLTV() {
             <p className="text-sm font-medium text-foreground">Active patients</p>
             <p className="text-xs text-foreground-muted">Drives all sections</p>
           </div>
-          <Slider value={[patients]} min={10} max={300} step={5} onValueChange={([v]) => ((v: number) => updateAssumption("patients", v))(v)} className="flex-[2] min-w-[160px]" />
+          <Slider value={[patients]} min={10} max={300} step={5} onValueChange={([v]) => updateAssumption("patients", v)} className="flex-[2] min-w-[160px]" />
           <span className="font-mono text-3xl font-medium text-foreground min-w-[52px] text-right">{patients}</span>
         </CardContent>
       </Card>
