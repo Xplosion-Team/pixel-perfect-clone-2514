@@ -99,9 +99,6 @@ const joyrideStyles = {
     color: "hsl(48, 4%, 56%)",
     fontSize: 11,
   },
-  spotlight: {
-    borderRadius: 8,
-  },
 };
 
 export function AppTour() {
