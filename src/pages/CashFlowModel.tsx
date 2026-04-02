@@ -122,7 +122,7 @@ export default function CashFlowModel() {
         Actual bank balance. All clinical costs variable per patient (RD, RN, MA, RPM Tech loaded + billing 4.5%). Platform costs (Zivian + EHR) are fixed. MNT cash Month 2, CCM/RPM cash Month 4.
       </p>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-5">
+      <div data-tour="cf-kpis" className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-5">
         <KPICard color={minBal < 0 ? "red" : "green"} label="Lowest balance" value={<span className={minBal < 0 ? "text-red" : "text-green"}>{formatCurrency(minBal)}</span>} subtitle={`Month ${trM}`} />
         <KPICard color="blue" label="Cash-positive month" value={fp >= 0 ? `Month ${fp + 1}` : "N/A"} subtitle="Net inflow > outflow" />
         <KPICard color="coral" label="Y1 expenses" value={formatCurrency(tE)} subtitle={`Clinical: ${formatCurrency(tClin)} (${Math.round((tClin / tE) * 100)}%)`} />
