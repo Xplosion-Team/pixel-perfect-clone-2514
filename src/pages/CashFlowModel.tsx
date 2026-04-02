@@ -97,7 +97,7 @@ export default function CashFlowModel() {
       ms.push(o);
     }
     return ms;
-  }, [mntPts, rpmStart, growth, ehr, capital, visits, customOnetimeHi, customMonthlyHi]);
+  }, [mntPts, rpmStart, growth, ehr, capital, visits, customOnetimeHi, customMonthlyHi, cacBudget]);
 
   const minBal = Math.min(...months.map((m) => m.bal));
   const trM = months.findIndex((m) => m.bal === minBal) + 1;
