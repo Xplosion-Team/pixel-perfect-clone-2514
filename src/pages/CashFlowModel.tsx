@@ -48,7 +48,8 @@ export default function CashFlowModel() {
     const ms: any[] = [];
 
     for (let m = 1; m <= N; m++) {
-      const o: any = { m, label: `Mo ${m}` };
+      const moNames = ["Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec","Jan","Feb","Mar"];
+      const o: any = { m, label: moNames[m - 1] };
       const mp = m <= 3 ? mntPts : Math.min(mntPts + Math.floor((m - 3) * 2), mntPts + 10);
       o.mntB = mp * visits * MR;
       const rp = Math.min(rpmStart + (m - 1) * growth, 300);
