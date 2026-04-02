@@ -5,6 +5,7 @@ import { InfoBox } from "@/components/ui/info-box";
 import { formatCurrency, clinicalCost, ZIVIAN } from "@/lib/budget-data";
 import { exportCashFlow } from "@/lib/export-cashflow";
 import { useCustomCosts } from "@/hooks/use-custom-costs";
+import { useCACLTVAssumptions } from "@/hooks/use-cac-ltv-assumptions";
 import { AddCostDialog } from "@/components/AddCostDialog";
 import { Download, X } from "lucide-react";
 import {
