@@ -62,7 +62,7 @@ export default function CashFlowModel() {
       o.zv = ZIVIAN;
       o.ehr = ehr;
       o.ot = 0;
-      if (m === 1) o.ot = OT1 + rpmStart * DPP;
+      if (m === 1) o.ot = OT1 + rpmStart * DPP + 3000; // +$3K legal/HC attorney PC license
       if (m === 2) o.ot = CRED;
 
       // Milestone bonuses ($2,000 each)
