@@ -27,6 +27,8 @@ export function Layout() {
         </div>
       </div>
       <MobileTabBar />
+      <AppTour />
+    </SidebarProvider>
     </SidebarProvider>
   );
 }

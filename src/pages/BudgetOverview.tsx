@@ -101,7 +101,7 @@ export default function BudgetOverview() {
       </div>
 
       {/* Chart */}
-      <div className="bg-card rounded-lg p-3 mb-1">
+      <div data-tour="budget-chart" className="bg-card rounded-lg p-3 mb-1">
         <ResponsiveContainer width="100%" height={220}>
           <BarChart data={chartData} barCategoryGap="30%">
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(0 0% 0% / 0.04)" vertical={false} />
