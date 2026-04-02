@@ -3,6 +3,8 @@ import { SectionTag } from "@/components/ui/section-tag";
 import { KPICard } from "@/components/ui/kpi-card";
 import { InfoBox } from "@/components/ui/info-box";
 import { formatCurrency, clinicalCost, ZIVIAN } from "@/lib/budget-data";
+import { exportCashFlow } from "@/lib/export-cashflow";
+import { Download } from "lucide-react";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Line, ComposedChart,
 } from "recharts";
@@ -111,7 +113,16 @@ export default function CashFlowModel() {
   return (
     <>
       <SectionTag color="blue">Cash flow — actual cash in account</SectionTag>
-      <h1 className="text-2xl font-bold tracking-tight mb-1">Cash-in-account model</h1>
+      <div className="flex items-center justify-between mb-1">
+        <h1 className="text-2xl font-bold tracking-tight">Cash-in-account model</h1>
+        <button
+          onClick={() => exportCashFlow(months, { capital })}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-accent text-accent-foreground text-xs font-semibold hover:opacity-80 transition-opacity"
+        >
+          <Download className="w-3.5 h-3.5" />
+          Export Excel
+        </button>
+      </div>
       <p className="text-xs text-foreground-secondary mb-5 max-w-[720px] leading-relaxed">
         Actual bank balance. All clinical costs variable per patient (RD, RN, MA, RPM Tech loaded + billing 4.5%). Platform costs (Zivian + EHR) are fixed. MNT cash Month 2, CCM/RPM cash Month 4.
       </p>
