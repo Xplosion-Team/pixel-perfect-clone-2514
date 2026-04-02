@@ -165,6 +165,7 @@ export default function CashFlowModel() {
             <DataRow label="Zivian" values={months.map((m) => m.zv)} negative />
             <DataRow label="EHR" values={months.map((m) => m.ehr)} negative />
             <DataRow label="One-time/devices" values={months.map((m) => m.ot)} negative />
+            <DataRow label="Milestone bonuses" values={months.map((m) => m.milestone)} negative />
             <SectionRow label="Clinical variable costs (per patient, 15% burden loaded)" />
             <DataRow label="RD ($34.50/pt)" values={months.map((m) => m.rd)} negative />
             <DataRow label="RN ($25.88/pt)" values={months.map((m) => m.rn)} negative />
