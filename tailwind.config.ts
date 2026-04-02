@@ -85,6 +85,7 @@ export default {
           DEFAULT: "hsl(var(--amber))",
           light: "hsl(var(--amber-light))",
           muted: "hsl(var(--amber-muted))",
+          dark: "hsl(var(--amber-dark))",
         },
         red: {
           DEFAULT: "hsl(var(--red))",
