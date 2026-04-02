@@ -63,9 +63,11 @@ export default function BudgetOverview() {
         <p className="mt-2"><strong>Billing & coding: 4.5%</strong> of collections. Total variable: <strong>$106.91 + 4.5% = ~$114.38/pt/mo.</strong> Margin on CCM+RPM ($166): <strong>$51.62/pt (31.1%)</strong></p>
       </InfoBox>
 
-      {Object.entries(BUDGET_DATA).map(([key, section]) => (
-        <BudgetSectionDisplay key={key} section={section} colorClass={sectionColors[key]} />
-      ))}
+      <div data-tour="budget-sections">
+        {Object.entries(BUDGET_DATA).map(([key, section]) => (
+          <BudgetSectionDisplay key={key} section={section} colorClass={sectionColors[key]} />
+        ))}
+      </div>
 
       <div className="h-px bg-border my-4" />
 
