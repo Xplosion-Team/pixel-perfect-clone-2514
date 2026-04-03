@@ -20,8 +20,8 @@ const sectionColors: Record<string, string> = {
 
 export default function BudgetOverview() {
   const { onetimeCosts, monthlyCosts, addCost, removeCost } = useCustomCosts();
-  const { assumptions: cacA } = useCACLTVAssumptions();
-  const cacBudget = cacA.cacDevice * cacA.targetPts;
+  const { assumptions: cacA, totalCac: cacPerPt } = useCACLTVAssumptions();
+  const cacBudget = cacPerPt * cacA.targetPts;
 
   const ot = BUDGET_DATA.onetime;
   const pe = BUDGET_DATA.preenroll;
@@ -125,7 +125,7 @@ export default function BudgetOverview() {
           { label: "Pre-enrollment", lo: pL, hi: pH },
           { label: "3 months recurring", lo: mL * 3, hi: mH * 3 },
           { label: "Milestone bonuses (4×$2K)", lo: mlL, hi: mlH },
-          { label: `CAC acquisition (${cacA.targetPts} pts × ${formatCurrency(cacA.cacDevice)})`, lo: cacBudget, hi: cacBudget },
+          { label: `CAC acquisition (${cacA.targetPts} pts × ${formatCurrency(cacPerPt)})`, lo: cacBudget, hi: cacBudget },
         ].map((item) => (
           <div key={item.label} className="grid grid-cols-[1fr_80px_80px_1fr] items-center py-1.5 border-b border-border">
             <div className="text-[11px]">{item.label}</div>
