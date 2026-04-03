@@ -20,8 +20,8 @@ const sectionColors: Record<string, string> = {
 
 export default function BudgetOverview() {
   const { onetimeCosts, monthlyCosts, addCost, removeCost } = useCustomCosts();
-  const { assumptions: cacA } = useCACLTVAssumptions();
-  const cacBudget = cacA.cacDevice * cacA.targetPts;
+  const { assumptions: cacA, totalCac: cacPerPt } = useCACLTVAssumptions();
+  const cacBudget = cacPerPt * cacA.targetPts;
 
   const ot = BUDGET_DATA.onetime;
   const pe = BUDGET_DATA.preenroll;
