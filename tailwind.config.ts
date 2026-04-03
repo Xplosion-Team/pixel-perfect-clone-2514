@@ -97,6 +97,11 @@ export default {
           light: "hsl(var(--teal-light))",
           muted: "hsl(var(--teal-muted))",
         },
+        indigo: {
+          DEFAULT: "hsl(var(--indigo))",
+          light: "hsl(var(--indigo-light))",
+          dark: "hsl(var(--indigo-dark))",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
