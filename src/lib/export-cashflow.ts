@@ -1,16 +1,15 @@
 import * as XLSX from "xlsx";
 
-const COL = (c: number) => XLSX.utils.encode_col(c); // 0-indexed → "A","B",...
-const CELL = (r: number, c: number) => `${COL(c)}${r}`; // 1-indexed row
+const COL = (c: number) => XLSX.utils.encode_col(c);
+const CELL = (r: number, c: number) => `${COL(c)}${r}`;
 
 export function exportCashFlow(months: any[], params: { capital: number }) {
   const wb = XLSX.utils.book_new();
   const ws: XLSX.WorkSheet = {};
 
   const moLabels = months.map((m) => m.label);
-  const N = moLabels.length; // 12
+  const N = moLabels.length;
 
-  // Helper: set cell value
   const set = (r: number, c: number, v: any, fmt?: string) => {
     const ref = CELL(r, c);
     if (typeof v === "string" && v.startsWith("=")) {
@@ -22,24 +21,17 @@ export function exportCashFlow(months: any[], params: { capital: number }) {
     }
   };
 
-  const bold = (r: number, c: number) => {
-    const ref = CELL(r, c);
-    if (ws[ref]) ws[ref].s = { font: { bold: true } };
-  };
-
-  // --- Layout ---
   // Row 1: Title
   set(1, 0, "FareRX — Cash-in-Account Model");
-  // Row 2: blank
-  // Row 3: Assumptions header
+
+  // Assumptions
   let row = 3;
   set(row, 0, "Assumptions");
 
-  // Row 4-9: Assumptions as inputs (blue text cells)
   const aRows: Record<string, number> = {};
   const assumptions = [
     ["MNT Rate ($/visit)", months[0] ? 68 : 68],
-    ["CCM/RPM Rate ($/pt/mo)", 166],
+    ["CCM/RPM Rate ($/pt/mo)", months[0]?.rpmB && months[0]?.rpmPts ? Math.round(months[0].rpmB / months[0].rpmPts) : 166],
     ["Starting Capital", params.capital],
     ["Zivian ($/mo)", months[0]?.zv ?? 0],
     ["EHR ($/mo)", months[0]?.ehr ?? 0],
@@ -51,14 +43,12 @@ export function exportCashFlow(months: any[], params: { capital: number }) {
     aRows[label as string] = r;
   });
 
-  // Data table starts
+  // Data table
   row = 11;
-  // Header row
   set(row, 0, "");
   moLabels.forEach((l, i) => set(row, i + 1, l));
   set(row, N + 1, "Total");
 
-  // Data rows with formulas
   const dataStart = row + 1;
   const sections: { label: string; key: string; formula?: boolean }[] = [
     { label: "— REVENUE BILLED —", key: "_sec1" },
@@ -73,16 +63,17 @@ export function exportCashFlow(months: any[], params: { capital: number }) {
     { label: "— FIXED COSTS —", key: "_sec3" },
     { label: "Zivian", key: "zv" },
     { label: "EHR", key: "ehr" },
-    { label: "One-time/devices + legal", key: "ot" },
+    { label: "One-time/legal", key: "ot" },
     { label: "Milestone bonuses", key: "milestone" },
     { label: "CAC acquisition", key: "cacAcq" },
     { label: "Custom monthly", key: "customMonthly" },
     { label: "— CLINICAL VARIABLE COSTS —", key: "_sec4" },
-    { label: "RD ($34.50/pt)", key: "rd" },
-    { label: "RN ($25.88/pt)", key: "rn" },
-    { label: "MA ($20.70/pt)", key: "ma" },
-    { label: "RPM Tech ($25.83/pt)", key: "rpmTech" },
-    { label: "Billing 4.5%", key: "bill" },
+    { label: "RD (loaded)", key: "rd" },
+    { label: "RN (loaded)", key: "rn" },
+    { label: "MA (loaded)", key: "ma" },
+    { label: "HealthArc (platform)", key: "ha" },
+    { label: "RingCentral (comms)", key: "rc" },
+    { label: "Billing %", key: "bill" },
     { label: "Total expenses", key: "totE", formula: true },
     { label: "— CASH POSITION —", key: "_sec5" },
     { label: "Net flow", key: "net", formula: true },
@@ -97,31 +88,26 @@ export function exportCashFlow(months: any[], params: { capital: number }) {
     rowMap[sec.key] = r;
 
     if (sec.key.startsWith("_sec")) {
-      // section header — no data
       r++;
       return;
     }
 
-    // Fill month values
     months.forEach((m, i) => {
       const c = i + 1;
       const val = m[sec.key] ?? 0;
 
       if (sec.key === "totB") {
-        // =MNT billed + CCM/RPM billed
         set(r, c, `=${CELL(rowMap["mntB"], c)}+${CELL(rowMap["rpmB"], c)}`);
       } else if (sec.key === "totR") {
         set(r, c, `=${CELL(rowMap["mntR"], c)}+${CELL(rowMap["rpmR"], c)}`);
       } else if (sec.key === "totE") {
-        // Sum of all expense rows
-        const expKeys = ["zv", "ehr", "ot", "milestone", "cacAcq", "customMonthly", "rd", "rn", "ma", "rpmTech", "bill"];
+        const expKeys = ["zv", "ehr", "ot", "milestone", "cacAcq", "customMonthly", "rd", "rn", "ma", "ha", "rc", "bill"];
         const refs = expKeys.map((k) => CELL(rowMap[k], c)).join("+");
         set(r, c, `=${refs}`);
       } else if (sec.key === "net") {
         set(r, c, `=${CELL(rowMap["totR"], c)}-${CELL(rowMap["totE"], c)}`);
       } else if (sec.key === "bal") {
         if (i === 0) {
-          // Starting capital + net flow
           set(r, c, `=${CELL(aRows["Starting Capital"], 1)}+${CELL(rowMap["net"], c)}`);
         } else {
           set(r, c, `=${CELL(r, c - 1)}+${CELL(rowMap["net"], c)}`);
@@ -131,7 +117,6 @@ export function exportCashFlow(months: any[], params: { capital: number }) {
       }
     });
 
-    // Total column (sum across months) for non-balance rows
     if (sec.key !== "bal" && sec.key !== "rpmPts") {
       const firstC = CELL(r, 1);
       const lastC = CELL(r, N);
@@ -141,11 +126,8 @@ export function exportCashFlow(months: any[], params: { capital: number }) {
     r++;
   });
 
-  // Set worksheet range
   const lastRow = r;
   ws["!ref"] = `A1:${COL(N + 1)}${lastRow}`;
-
-  // Column widths
   ws["!cols"] = [{ wch: 26 }, ...Array(N + 1).fill({ wch: 13 })];
 
   XLSX.utils.book_append_sheet(wb, ws, "Cash Flow");
