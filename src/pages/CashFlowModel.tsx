@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { SectionTag } from "@/components/ui/section-tag";
 import { KPICard } from "@/components/ui/kpi-card";
 import { InfoBox } from "@/components/ui/info-box";
-import { formatCurrency, clinicalCost, ZIVIAN } from "@/lib/budget-data";
+import { formatCurrency, clinicalCostDynamic, ZIVIAN, BURDEN } from "@/lib/budget-data";
 import { exportCashFlow } from "@/lib/export-cashflow";
 import { useCustomCosts } from "@/hooks/use-custom-costs";
 import { useCACLTVAssumptions } from "@/hooks/use-cac-ltv-assumptions";
@@ -40,6 +40,8 @@ function SliderField({ label, min, max, step, value, onChange, display }: Slider
   );
 }
 
+function fmt2(n: number) { return "$" + n.toFixed(2); }
+
 export default function CashFlowModel() {
   const [mntPts, setMntPts] = useState(10);
   const [rpmStart, setRpmStart] = useState(30);
@@ -49,15 +51,28 @@ export default function CashFlowModel() {
   const [visits, setVisits] = useState(2);
 
   const { onetimeCosts, monthlyCosts, addCost, removeCost } = useCustomCosts();
-  const { assumptions: cacAssumptions, totalCac: cacPerPt } = useCACLTVAssumptions();
+  const { assumptions: cacA, totalCac: cacPerPt } = useCACLTVAssumptions();
 
-  const cacBudget = cacPerPt * cacAssumptions.targetPts;
+  const cacBudget = cacPerPt * cacA.targetPts;
 
   const customOnetimeHi = onetimeCosts.reduce((a, c) => a + c.hi, 0);
   const customMonthlyHi = monthlyCosts.reduce((a, c) => a + c.hi, 0);
 
+  // Build dynamic rates from shared assumptions
+  const rates = useMemo(() => ({
+    rdRate: cacA.rdRate, rnRate: cacA.rnRate, maRate: cacA.maRate,
+    rdHrs: cacA.rdHrs, rnHrs: cacA.rnHrs, maHrs: cacA.maHrs,
+    haRate: cacA.haRate, rcRate: cacA.rcRate,
+    billingPct: cacA.billingPct, revPt: cacA.revPt,
+  }), [cacA]);
+
+  // Loaded cost labels (dynamic)
+  const rdLoaded = cacA.rdRate * cacA.rdHrs * BURDEN;
+  const rnLoaded = cacA.rnRate * cacA.rnHrs * BURDEN;
+  const maLoaded = cacA.maRate * cacA.maHrs * BURDEN;
+
   const months = useMemo(() => {
-    const MR = 68, RR = 166, OT1 = 3125, DPP = 150, CRED = 3000, N = 12;
+    const MR = 68, RR = cacA.revPt, OT1 = 3125, CRED = 3000, N = 12;
     const ms: any[] = [];
 
     for (let m = 1; m <= N; m++) {
@@ -79,7 +94,7 @@ export default function CashFlowModel() {
       o.zv = ZIVIAN;
       o.ehr = ehr;
       o.ot = 0;
-      if (m === 1) o.ot = OT1 + rpmStart * DPP + 3000 + customOnetimeHi;
+      if (m === 1) o.ot = OT1 + customOnetimeHi;
       if (m === 2) o.ot = CRED;
 
       o.milestone = 0;
@@ -88,8 +103,11 @@ export default function CashFlowModel() {
       o.customMonthly = customMonthlyHi;
       o.cacAcq = m === 1 ? cacBudget : 0;
 
-      const cl = clinicalCost(rp, o.totB);
-      o.rd = cl.rd; o.rn = cl.rn; o.ma = cl.ma; o.rpmTech = cl.rpm; o.bill = cl.bill;
+      // Dynamic clinical costs from shared assumptions
+      const cl = clinicalCostDynamic(rp, { ...rates, revPt: o.totB / Math.max(rp, 1) });
+      o.rd = cl.rd; o.rn = cl.rn; o.ma = cl.ma;
+      o.ha = cl.haTotal; o.rc = cl.rcTotal;
+      o.bill = cl.bill;
       o.clinTotal = cl.total;
       o.totE = o.zv + o.ehr + o.ot + o.milestone + o.clinTotal + o.customMonthly + o.cacAcq;
       o.net = o.totR - o.totE;
@@ -97,7 +115,7 @@ export default function CashFlowModel() {
       ms.push(o);
     }
     return ms;
-  }, [mntPts, rpmStart, growth, ehr, capital, visits, customOnetimeHi, customMonthlyHi, cacBudget]);
+  }, [mntPts, rpmStart, growth, ehr, capital, visits, customOnetimeHi, customMonthlyHi, cacBudget, rates, cacA.revPt]);
 
   const minBal = Math.min(...months.map((m) => m.bal));
   const trM = months.findIndex((m) => m.bal === minBal) + 1;
@@ -133,7 +151,7 @@ export default function CashFlowModel() {
         </div>
       </div>
       <p className="text-xs text-foreground-secondary mb-5 max-w-[720px] leading-relaxed">
-        Actual bank balance. All clinical costs variable per patient (RD, RN, MA, RPM Tech loaded + billing 4.5%). Platform costs (Zivian + EHR) are fixed. MNT cash Month 2, CCM/RPM cash Month 4.
+        Actual bank balance. All clinical costs variable per patient (RD, RN, MA loaded + HealthArc ${cacA.haRate}/pt + RingCentral ${cacA.rcRate}/pt + billing {cacA.billingPct}%). Platform costs (Zivian + EHR) are fixed. MNT cash Month 2, CCM/RPM cash Month 4.
       </p>
 
       <div data-tour="cf-kpis" className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-5">
@@ -148,7 +166,7 @@ export default function CashFlowModel() {
         <h3 className="text-[9px] font-semibold uppercase tracking-[0.06em] text-foreground-secondary mb-2">Adjust assumptions</h3>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5">
           <SliderField label="MNT patients" min={5} max={40} step={1} value={mntPts} onChange={setMntPts} display={`${mntPts} pts × ${visits} visits × $68`} />
-          <SliderField label="CCM+RPM patients (Mo 1)" min={5} max={80} step={5} value={rpmStart} onChange={setRpmStart} display={`${rpmStart} pts @ $166/pt`} />
+          <SliderField label="CCM+RPM patients (Mo 1)" min={5} max={80} step={5} value={rpmStart} onChange={setRpmStart} display={`${rpmStart} pts @ $${cacA.revPt}/pt`} />
           <SliderField label="Monthly growth" min={0} max={25} step={5} value={growth} onChange={setGrowth} display={`+${growth} pts/mo`} />
           <SliderField label="EHR cost" min={400} max={1200} step={50} value={ehr} onChange={setEhr} display={`$${ehr}/mo`} />
           <SliderField label="Starting capital" min={40000} max={60000} step={1000} value={capital} onChange={setCapital} display={`$${capital.toLocaleString()}`} />
@@ -220,18 +238,19 @@ export default function CashFlowModel() {
             <SectionRow label="Fixed costs" />
             <DataRow label="Zivian" values={months.map((m) => m.zv)} negative />
             <DataRow label="EHR" values={months.map((m) => m.ehr)} negative />
-            <DataRow label="One-time/devices" values={months.map((m) => m.ot)} negative />
+            <DataRow label="One-time/legal" values={months.map((m) => m.ot)} negative />
             <DataRow label="Milestone bonuses" values={months.map((m) => m.milestone)} negative />
-            <DataRow label={`CAC acquisition (${cacAssumptions.targetPts} pts)`} values={months.map((m) => m.cacAcq)} negative />
+            <DataRow label={`CAC acquisition (${cacA.targetPts} pts)`} values={months.map((m) => m.cacAcq)} negative />
             {customMonthlyHi > 0 && (
               <DataRow label="Custom monthly" values={months.map((m) => m.customMonthly)} negative />
             )}
             <SectionRow label="Clinical variable costs (per patient, 15% burden loaded)" />
-            <DataRow label="RD ($34.50/pt)" values={months.map((m) => m.rd)} negative />
-            <DataRow label="RN ($25.88/pt)" values={months.map((m) => m.rn)} negative />
-            <DataRow label="MA ($20.70/pt)" values={months.map((m) => m.ma)} negative />
-            <DataRow label="RPM Tech ($25.83/pt)" values={months.map((m) => m.rpmTech)} negative />
-            <DataRow label="Billing 4.5%" values={months.map((m) => m.bill)} negative />
+            <DataRow label={`RD (${fmt2(rdLoaded)}/pt)`} values={months.map((m) => m.rd)} negative />
+            <DataRow label={`RN (${fmt2(rnLoaded)}/pt)`} values={months.map((m) => m.rn)} negative />
+            <DataRow label={`MA (${fmt2(maLoaded)}/pt)`} values={months.map((m) => m.ma)} negative />
+            <DataRow label={`HealthArc ($${cacA.haRate}/pt)`} values={months.map((m) => m.ha)} negative />
+            <DataRow label={`RingCentral ($${cacA.rcRate}/pt)`} values={months.map((m) => m.rc)} negative />
+            <DataRow label={`Billing ${cacA.billingPct}%`} values={months.map((m) => m.bill)} negative />
             <DataRow label="Total expenses" values={months.map((m) => m.totE)} negative bold />
             <SectionRow label="Cash position" />
             <DataRow label="Net flow" values={months.map((m) => m.net)} auto bold />
@@ -299,7 +318,7 @@ export default function CashFlowModel() {
       </InfoBox>
 
       <div className="mt-8 pt-3 border-t border-border flex justify-between text-[9px] text-foreground-muted">
-        <span>March 2026 — Kehlin Swain, Greens Health</span>
+        <span>April 2026 — Kehlin Swain, Greens Health</span>
         <span>kehlin.swain@greens.health</span>
       </div>
     </>
@@ -333,11 +352,9 @@ function DataRow({ label, values, positive, negative, auto, bold, isCount }: {
         if (auto) colorClass = v < 0 ? "text-red" : v > 0 ? "text-green" : "text-foreground-muted";
         else if (positive) colorClass = v > 0 ? "text-green" : "text-foreground-muted";
         else if (negative) colorClass = v > 0 ? "text-red" : "text-foreground-muted";
-        else colorClass = "text-foreground-muted";
-
         return (
-          <td key={i} className={`text-right font-mono p-1 border-b border-border ${colorClass} ${bold ? "font-medium" : ""}`}>
-            {v === 0 ? "—" : isCount && v < 1000 ? v : formatCurrency(v)}
+          <td key={i} className={`text-right font-mono p-1 whitespace-nowrap ${bold ? "font-semibold" : ""} ${colorClass}`}>
+            {isCount ? v : formatCurrency(v)}
           </td>
         );
       })}

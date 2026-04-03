@@ -1,6 +1,8 @@
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
+import { useCACLTVAssumptions } from "@/hooks/use-cac-ltv-assumptions";
+import { BURDEN } from "@/lib/budget-data";
 import {
   Table,
   TableBody,
@@ -10,7 +12,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-const BURDEN = 1.15;
 const AVAIL = 160;
 
 function fmt(n: number) {
@@ -62,16 +63,13 @@ function SliderRow({ label, value, min, max, step, format, onChange }: SliderRow
 }
 
 export default function PatientEconomics() {
-  const [patients, setPatients] = useState(100);
-  const [rdRate, setRdRate] = useState(40);
-  const [rnRate, setRnRate] = useState(45);
-  const [maRate, setMaRate] = useState(24);
-  const [rpmFlat, setRpmFlat] = useState(25.83);
-  const [rdHrs, setRdHrs] = useState(0.75);
-  const [rnHrs, setRnHrs] = useState(0.5);
-  const [maHrs, setMaHrs] = useState(0.75);
-  const [billingPct, setBillingPct] = useState(4.5);
-  const [revPt, setRevPt] = useState(166);
+  const { assumptions: a, updateAssumption, loaded } = useCACLTVAssumptions();
+
+  const patients = a.patients;
+  const rdRate = a.rdRate, rnRate = a.rnRate, maRate = a.maRate;
+  const haRate = a.haRate, rcRate = a.rcRate;
+  const rdHrs = a.rdHrs, rnHrs = a.rnHrs, maHrs = a.maHrs;
+  const billingPct = a.billingPct, revPt = a.revPt;
 
   const calc = useMemo(() => {
     const rdBase = rdRate * rdHrs;
@@ -81,18 +79,19 @@ export default function PatientEconomics() {
     const rnLoaded = rnBase * BURDEN;
     const maLoaded = maBase * BURDEN;
     const billCost = revPt * (billingPct / 100);
-    const totalVar = rdLoaded + rnLoaded + maLoaded + rpmFlat + billCost;
+    const totalVar = rdLoaded + rnLoaded + maLoaded + haRate + rcRate + billCost;
 
     const totalRev = revPt * patients;
     const totalCost = totalVar * patients;
     const profit = totalRev - totalCost;
-    const margin = profit / totalRev;
+    const margin = totalRev > 0 ? profit / totalRev : 0;
 
     const rows = [
       { label: "Dietitian (RD)", sub: `${fmt2(rdBase)} base × 1.15 burden`, perPt: rdLoaded, total: rdLoaded * patients },
       { label: "Nurse (RN)", sub: `${fmt2(rnBase)} base × 1.15 burden`, perPt: rnLoaded, total: rnLoaded * patients },
       { label: "Medical assistant (MA)", sub: `${fmt2(maBase)} base × 1.15 burden`, perPt: maLoaded, total: maLoaded * patients },
-      { label: "RPM tech", sub: "Flat contract rate — no burden applied", perPt: rpmFlat, total: rpmFlat * patients },
+      { label: "HealthArc (RPM + CCM platform)", sub: `Flat $${haRate}/pt — device + monitoring bundled`, perPt: haRate, total: haRate * patients },
+      { label: "RingCentral (communication)", sub: `Flat $${rcRate}/pt — telehealth & messaging`, perPt: rcRate, total: rcRate * patients },
       { label: "Billing & coding", sub: `${billingPct.toFixed(1)}% of ${fmt2(revPt)} revenue`, perPt: billCost, total: billCost * patients },
       { label: "Total variable cost", sub: "", perPt: totalVar, total: totalCost, bold: true },
     ];
@@ -116,7 +115,7 @@ export default function PatientEconomics() {
     const allOk = patients <= Math.min(...capacity.map((c) => c.maxP));
 
     return { totalRev, totalCost, totalVar, profit, margin, rows, capacity, minMax, bottleneckRole, allOk };
-  }, [patients, rdRate, rnRate, maRate, rpmFlat, rdHrs, rnHrs, maHrs, billingPct, revPt]);
+  }, [patients, rdRate, rnRate, maRate, haRate, rcRate, rdHrs, rnHrs, maHrs, billingPct, revPt]);
 
   return (
     <div>
@@ -129,7 +128,7 @@ export default function PatientEconomics() {
           Patient Economics Calculator
         </h1>
         <p className="text-sm text-foreground-muted max-w-xl leading-relaxed">
-          Adjust your panel size, staff rates, and time assumptions to model real-time gross margin across CCM, RPM, and MNT programs.
+          CCM + RPM · HealthArc ${haRate}/pt · RingCentral ${rcRate}/pt · 2026 Medicare rates. All assumptions sync across pages.
         </p>
       </div>
 
@@ -137,8 +136,8 @@ export default function PatientEconomics() {
       <div className="bg-green-light border-l-[3px] border-green rounded-r-lg p-4 mb-8" data-tour="econ-explainer">
         <p className="text-[13px] font-medium text-green-dark mb-1">How to read this — lemonade stand version</p>
         <p className="text-[13px] text-green-dark/80 leading-relaxed">
-          Think of each patient as a customer who pays you $166/month. You pay workers to serve them —
-          a dietitian, a nurse, a medical assistant, and an RPM tech. Whatever is left after paying your workers is your profit.
+          Think of each patient as a customer who pays you ${revPt}/month. You pay workers to serve them —
+          a dietitian, a nurse, a medical assistant, plus HealthArc and RingCentral platforms. Whatever is left after paying your workers is your profit.
           The goal: add more customers using the same crew for as long as possible before needing to hire.
         </p>
       </div>
@@ -156,7 +155,7 @@ export default function PatientEconomics() {
             min={10}
             max={300}
             step={5}
-            onValueChange={([v]) => setPatients(v)}
+            onValueChange={([v]) => updateAssumption("patients", v)}
             className="flex-[2] min-w-[160px]"
           />
           <span className="font-mono text-3xl font-medium text-foreground min-w-[60px] text-right">{patients}</span>
@@ -194,10 +193,9 @@ export default function PatientEconomics() {
 
       {/* Staff assumptions */}
       <div className="mb-5">
-        <h2 className="text-lg font-medium text-foreground mb-1">Staff assumptions</h2>
+        <h2 className="text-lg font-medium text-foreground mb-1">Staff & platform assumptions</h2>
         <p className="text-[13px] text-foreground-muted leading-relaxed">
-          Hourly rates use a 15% burden multiplier for payroll taxes, benefits, and overhead.
-          RPM Tech is a flat contract rate — no burden applied.
+          15% burden on labor. HealthArc and RingCentral are flat platform rates — no burden applied. Changes sync to all pages.
         </p>
       </div>
 
@@ -207,10 +205,9 @@ export default function PatientEconomics() {
             <p className="text-[13px] font-medium text-foreground pb-3 border-b border-border mb-4">
               Hourly rates <span className="text-foreground-muted font-normal ml-2 text-xs">per hour of work</span>
             </p>
-            <SliderRow label="RD rate" value={rdRate} min={25} max={70} step={1} format={(v) => `$${v}/hr`} onChange={setRdRate} />
-            <SliderRow label="RN rate" value={rnRate} min={30} max={80} step={1} format={(v) => `$${v}/hr`} onChange={setRnRate} />
-            <SliderRow label="MA rate" value={maRate} min={15} max={40} step={1} format={(v) => `$${v}/hr`} onChange={setMaRate} />
-            <SliderRow label="RPM flat" value={rpmFlat} min={5} max={50} step={0.5} format={(v) => `$${v.toFixed(2)}/pt`} onChange={setRpmFlat} />
+            <SliderRow label="RD rate" value={rdRate} min={25} max={70} step={1} format={(v) => `$${v}/hr`} onChange={(v) => updateAssumption("rdRate", v)} />
+            <SliderRow label="RN rate" value={rnRate} min={30} max={80} step={1} format={(v) => `$${v}/hr`} onChange={(v) => updateAssumption("rnRate", v)} />
+            <SliderRow label="MA rate" value={maRate} min={15} max={40} step={1} format={(v) => `$${v}/hr`} onChange={(v) => updateAssumption("maRate", v)} />
           </CardContent>
         </Card>
         <Card>
@@ -218,13 +215,24 @@ export default function PatientEconomics() {
             <p className="text-[13px] font-medium text-foreground pb-3 border-b border-border mb-4">
               Time per patient / month <span className="text-foreground-muted font-normal ml-2 text-xs">CCM min = 20 min</span>
             </p>
-            <SliderRow label="RD time" value={rdHrs} min={0.1} max={2} step={0.05} format={(v) => `${v.toFixed(2)} hr`} onChange={setRdHrs} />
-            <SliderRow label="RN time" value={rnHrs} min={0.1} max={2} step={0.05} format={(v) => `${v.toFixed(2)} hr`} onChange={setRnHrs} />
-            <SliderRow label="MA time" value={maHrs} min={0.1} max={2} step={0.05} format={(v) => `${v.toFixed(2)} hr`} onChange={setMaHrs} />
-            <SliderRow label="Billing %" value={billingPct} min={2} max={8} step={0.1} format={(v) => `${v.toFixed(1)}%`} onChange={setBillingPct} />
+            <SliderRow label="RD time" value={rdHrs} min={0.1} max={2} step={0.05} format={(v) => `${v.toFixed(2)} hr`} onChange={(v) => updateAssumption("rdHrs", v)} />
+            <SliderRow label="RN time" value={rnHrs} min={0.1} max={2} step={0.05} format={(v) => `${v.toFixed(2)} hr`} onChange={(v) => updateAssumption("rnHrs", v)} />
+            <SliderRow label="MA time" value={maHrs} min={0.1} max={2} step={0.05} format={(v) => `${v.toFixed(2)} hr`} onChange={(v) => updateAssumption("maHrs", v)} />
+            <SliderRow label="Billing %" value={billingPct} min={2} max={8} step={0.1} format={(v) => `${v.toFixed(1)}%`} onChange={(v) => updateAssumption("billingPct", v)} />
           </CardContent>
         </Card>
       </div>
+
+      {/* Platform costs */}
+      <Card className="mb-4">
+        <CardContent className="p-5">
+          <p className="text-[13px] font-medium text-foreground pb-3 border-b border-border mb-4">
+            Platform costs <span className="text-foreground-muted font-normal ml-2 text-xs">flat rate per patient — no burden</span>
+          </p>
+          <SliderRow label="HealthArc" value={haRate} min={5} max={30} step={1} format={(v) => `$${v}/pt`} onChange={(v) => updateAssumption("haRate", v)} />
+          <SliderRow label="RingCentral" value={rcRate} min={2} max={15} step={1} format={(v) => `$${v}/pt`} onChange={(v) => updateAssumption("rcRate", v)} />
+        </CardContent>
+      </Card>
 
       {/* Revenue per patient */}
       <Card className="mb-10">
@@ -238,7 +246,7 @@ export default function PatientEconomics() {
             min={100}
             max={250}
             step={1}
-            onValueChange={([v]) => setRevPt(v)}
+            onValueChange={([v]) => updateAssumption("revPt", v)}
             className="flex-1 min-w-[120px]"
           />
           <span className="font-mono text-xl font-medium text-green min-w-[80px] text-right">${revPt}</span>
@@ -248,7 +256,7 @@ export default function PatientEconomics() {
       {/* Formula */}
       <p className="font-mono text-[10px] tracking-widest uppercase text-foreground-muted mb-3">How each line is calculated</p>
       <div className="flex flex-wrap items-center gap-3 bg-muted border border-border rounded-lg p-3 mb-10">
-        {["rate × hours", "× 1.15 burden", "= loaded cost / pt", "· RPM: flat rate only", "· billing: % × revenue"].map((chip, i) => (
+        {["rate × hours", "× 1.15 burden", "= loaded cost / pt", "· HealthArc + RC: flat rate", "· billing: % × revenue"].map((chip, i) => (
           <span key={i} className={i === 0 || i === 1 || i === 2 ? "font-mono text-xs bg-background border border-border rounded-md px-2.5 py-1 text-foreground-secondary" : "text-[13px] text-foreground-muted"}>
             {chip}
           </span>
@@ -338,7 +346,7 @@ export default function PatientEconomics() {
 
       {/* Footnote */}
       <div className="text-xs text-foreground-muted leading-relaxed border-t border-border pt-6">
-        <strong className="text-foreground-secondary font-medium">Assumptions:</strong> 160 available hours per staff per month (1 FTE). 15% burden multiplier covers FICA, FUTA, SUTA, workers comp, and basic benefits. Billing fee applies to CCM + RPM revenue. Revenue reflects 2026 Medicare rates for stacked CCM (99490 + 99439) and RPM (99453, 99454, 99457, 99458). Fixed costs (Zivian ~$2,000/mo, EHR ~$650/mo, milestone bonuses) are excluded from this variable-cost model.
+        <strong className="text-foreground-secondary font-medium">Assumptions:</strong> 160 available hours per staff per month (1 FTE). 15% burden multiplier covers FICA, FUTA, SUTA, workers comp, and basic benefits. HealthArc bundles RPM device monitoring + CCM platform at ${haRate}/pt/mo. RingCentral ${rcRate}/pt/mo. Revenue reflects 2026 Medicare rates for stacked CCM + RPM. Fixed costs (Zivian ~$2,000/mo, EHR ~$650/mo) excluded from variable model. All values sync across Budget, Cash Flow, and CAC/LTV pages.
         <br /><br />
         <strong className="text-foreground-secondary font-medium">Built for FareRX MSO · Internal use only</strong>
       </div>
