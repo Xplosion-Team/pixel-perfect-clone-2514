@@ -3,23 +3,68 @@ export function formatCurrency(n: number): string {
   return (neg ? "-$" : "$") + Math.abs(Math.round(n)).toLocaleString();
 }
 
-// Clinical variable costs per patient per month (loaded with 15% payroll burden)
-export const RD_LOADED = 34.50;
-export const RN_LOADED = 25.88;
-export const MA_LOADED = 20.70;
-export const RPM_TECH = 25.83;
+// Platform costs per patient per month
+export const HA_RATE = 16;   // HealthArc (RPM device + CCM platform)
+export const RC_RATE = 4;    // RingCentral (communication platform)
 export const BILL_PCT = 0.045;
-export const CLINICAL_PER_PT = RD_LOADED + RN_LOADED + MA_LOADED + RPM_TECH;
 export const ZIVIAN = 2000;
+export const BURDEN = 1.15;
 
-export function clinicalCost(pts: number, rev: number) {
-  const rd = Math.round(pts * RD_LOADED);
-  const rn = Math.round(pts * RN_LOADED);
-  const ma = Math.round(pts * MA_LOADED);
-  const rpm = Math.round(pts * RPM_TECH);
-  const bill = Math.round(rev * BILL_PCT);
-  return { rd, rn, ma, rpm, bill, total: rd + rn + ma + rpm + bill };
+// Dynamic clinical cost calculator using shared assumptions
+export interface ClinicalRates {
+  rdRate: number;
+  rnRate: number;
+  maRate: number;
+  rdHrs: number;
+  rnHrs: number;
+  maHrs: number;
+  haRate: number;
+  rcRate: number;
+  billingPct: number;
+  revPt: number;
 }
+
+export const DEFAULT_RATES: ClinicalRates = {
+  rdRate: 40, rnRate: 45, maRate: 24,
+  rdHrs: 0.75, rnHrs: 0.50, maHrs: 0.75,
+  haRate: HA_RATE, rcRate: RC_RATE,
+  billingPct: 4.5, revPt: 166,
+};
+
+export function clinicalCostDynamic(pts: number, rates: ClinicalRates) {
+  const rdLoaded = rates.rdRate * rates.rdHrs * BURDEN;
+  const rnLoaded = rates.rnRate * rates.rnHrs * BURDEN;
+  const maLoaded = rates.maRate * rates.maHrs * BURDEN;
+  const ha = rates.haRate;
+  const rc = rates.rcRate;
+  const rev = rates.revPt * pts;
+  const bill = rev * (rates.billingPct / 100);
+  const perPt = rdLoaded + rnLoaded + maLoaded + ha + rc + (rates.revPt * rates.billingPct / 100);
+  const total = perPt * pts;
+  return {
+    rdLoaded, rnLoaded, maLoaded, ha, rc,
+    rd: Math.round(rdLoaded * pts),
+    rn: Math.round(rnLoaded * pts),
+    ma: Math.round(maLoaded * pts),
+    haTotal: Math.round(ha * pts),
+    rcTotal: Math.round(rc * pts),
+    bill: Math.round(bill),
+    perPt,
+    total: Math.round(total),
+  };
+}
+
+// Legacy wrapper for backward compat
+export function clinicalCost(pts: number, rev: number) {
+  const rates = { ...DEFAULT_RATES, revPt: rev / Math.max(pts, 1) };
+  const r = clinicalCostDynamic(pts, rates);
+  return { rd: r.rd, rn: r.rn, ma: r.ma, rpm: r.haTotal + r.rcTotal, bill: r.bill, total: r.total };
+}
+
+// Hardcoded loaded values (for reference / labels) derived from defaults
+export const RD_LOADED = DEFAULT_RATES.rdRate * DEFAULT_RATES.rdHrs * BURDEN;
+export const RN_LOADED = DEFAULT_RATES.rnRate * DEFAULT_RATES.rnHrs * BURDEN;
+export const MA_LOADED = DEFAULT_RATES.maRate * DEFAULT_RATES.maHrs * BURDEN;
 
 export interface BudgetSection {
   title: string;
@@ -37,7 +82,6 @@ export const BUDGET_DATA: Record<string, BudgetSection> = {
       { label: "Healthcare attorney + PC filing", lo: 3000, hi: 3125 },
       { label: "Name reservation", lo: 0, hi: 70 },
       { label: "EHR setup", lo: 0, hi: 1225 },
-      { label: "RPM devices (30 pts)", lo: 1200, hi: 5250 },
     ],
   },
   preenroll: {
@@ -56,13 +100,6 @@ export const BUDGET_DATA: Record<string, BudgetSection> = {
     items: [
       { label: "Zivian (doctor mgmt + malpractice)", lo: 2000, hi: 2000 },
       { label: "EHR + billing platform", lo: 650, hi: 1162 },
-      { label: "RPM software", lo: 150, hi: 900 },
-      { label: "RD loaded ($34.50 × 30 pts)", lo: 1035, hi: 1035 },
-      { label: "RN loaded ($25.88 × 30 pts)", lo: 776, hi: 776 },
-      { label: "MA loaded ($20.70 × 30 pts)", lo: 621, hi: 621 },
-      { label: "RPM Tech ($25.83 × 30 pts)", lo: 775, hi: 775 },
-      { label: "Billing & coding (4.5% of ~$7K)", lo: 315, hi: 315 },
-      { label: "Prior auth (optional)", lo: 0, hi: 260 },
     ],
   },
   milestones: {
