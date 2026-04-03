@@ -230,12 +230,14 @@ export default function CACtoLTV() {
       </Card>
 
       <Tabs defaultValue="summary" className="mb-8">
-        <TabsList className="w-full justify-start mb-4 md:mb-6 overflow-x-auto">
-          <TabsTrigger value="summary" className="text-xs md:text-sm">Summary</TabsTrigger>
-          <TabsTrigger value="budget" className="text-xs md:text-sm">Budget</TabsTrigger>
-          <TabsTrigger value="economics" className="text-xs md:text-sm">Economics</TabsTrigger>
-          <TabsTrigger value="ltv" className="text-xs md:text-sm">CAC & LTV</TabsTrigger>
-        </TabsList>
+        <div className="overflow-x-auto -mx-4 px-4 mb-4 md:mb-6 scrollbar-hide">
+          <TabsList className="inline-flex w-max min-w-full justify-start">
+            <TabsTrigger value="summary" className="text-xs md:text-sm whitespace-nowrap">Summary</TabsTrigger>
+            <TabsTrigger value="budget" className="text-xs md:text-sm whitespace-nowrap">Budget</TabsTrigger>
+            <TabsTrigger value="economics" className="text-xs md:text-sm whitespace-nowrap">Economics</TabsTrigger>
+            <TabsTrigger value="ltv" className="text-xs md:text-sm whitespace-nowrap">CAC & LTV</TabsTrigger>
+          </TabsList>
+        </div>
 
         {/* ═══ EXECUTIVE SUMMARY ═══ */}
         <TabsContent value="summary">
