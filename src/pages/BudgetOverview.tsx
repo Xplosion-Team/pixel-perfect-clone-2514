@@ -2,7 +2,7 @@ import { SectionTag } from "@/components/ui/section-tag";
 import { KPICard } from "@/components/ui/kpi-card";
 import { InfoBox } from "@/components/ui/info-box";
 import { BudgetSectionDisplay } from "@/components/BudgetSectionDisplay";
-import { BUDGET_DATA, formatCurrency } from "@/lib/budget-data";
+import { BUDGET_DATA, formatCurrency, BURDEN } from "@/lib/budget-data";
 import { useCustomCosts } from "@/hooks/use-custom-costs";
 import { useCACLTVAssumptions } from "@/hooks/use-cac-ltv-assumptions";
 import { AddCostDialog } from "@/components/AddCostDialog";
@@ -18,14 +18,47 @@ const sectionColors: Record<string, string> = {
   milestones: "blue",
 };
 
+function fmt2(n: number) { return "$" + n.toFixed(2); }
+
 export default function BudgetOverview() {
   const { onetimeCosts, monthlyCosts, addCost, removeCost } = useCustomCosts();
   const { assumptions: cacA, totalCac: cacPerPt } = useCACLTVAssumptions();
   const cacBudget = cacPerPt * cacA.targetPts;
 
+  // Dynamic loaded costs from shared assumptions
+  const rdLoaded = cacA.rdRate * cacA.rdHrs * BURDEN;
+  const rnLoaded = cacA.rnRate * cacA.rnHrs * BURDEN;
+  const maLoaded = cacA.maRate * cacA.maHrs * BURDEN;
+  const haRate = cacA.haRate;
+  const rcRate = cacA.rcRate;
+  const billingPct = cacA.billingPct;
+  const revPt = cacA.revPt;
+  const billCost = revPt * (billingPct / 100);
+  const totalVarPt = rdLoaded + rnLoaded + maLoaded + haRate + rcRate + billCost;
+  const marginPt = revPt - totalVarPt;
+  const marginPct = revPt > 0 ? (marginPt / revPt) * 100 : 0;
+
+  // Dynamic clinical costs for 30 patients
+  const clinPts = 30;
+  const clinicalItems = [
+    { label: `RD loaded (${fmt2(rdLoaded)} × ${clinPts} pts)`, lo: Math.round(rdLoaded * clinPts), hi: Math.round(rdLoaded * clinPts) },
+    { label: `RN loaded (${fmt2(rnLoaded)} × ${clinPts} pts)`, lo: Math.round(rnLoaded * clinPts), hi: Math.round(rnLoaded * clinPts) },
+    { label: `MA loaded (${fmt2(maLoaded)} × ${clinPts} pts)`, lo: Math.round(maLoaded * clinPts), hi: Math.round(maLoaded * clinPts) },
+    { label: `HealthArc ($${haRate} × ${clinPts} pts)`, lo: haRate * clinPts, hi: haRate * clinPts },
+    { label: `RingCentral ($${rcRate} × ${clinPts} pts)`, lo: rcRate * clinPts, hi: rcRate * clinPts },
+    { label: `Billing & coding (${billingPct}% of ~$${Math.round(revPt * clinPts / 1000)}K)`, lo: Math.round(billCost * clinPts), hi: Math.round(billCost * clinPts) },
+    { label: "Prior auth (optional)", lo: 0, hi: 260 },
+  ];
+
+  // Merge BUDGET_DATA monthly with dynamic clinical items
+  const monthlySection = {
+    ...BUDGET_DATA.monthly,
+    items: [...BUDGET_DATA.monthly.items, ...clinicalItems],
+  };
+
   const ot = BUDGET_DATA.onetime;
   const pe = BUDGET_DATA.preenroll;
-  const mo = BUDGET_DATA.monthly;
+  const mo = monthlySection;
   const ml = BUDGET_DATA.milestones;
 
   const oL = ot.items.reduce((a, i) => a + i.lo, 0) + onetimeCosts.reduce((a, c) => a + c.lo, 0);
@@ -48,32 +81,40 @@ export default function BudgetOverview() {
     { name: "Total", lo: gL, hi: gH },
   ];
 
+  // Build display sections — override monthly to show dynamic items
+  const displaySections: Record<string, typeof BUDGET_DATA[string]> = {
+    onetime: BUDGET_DATA.onetime,
+    preenroll: BUDGET_DATA.preenroll,
+    monthly: monthlySection,
+    milestones: BUDGET_DATA.milestones,
+  };
+
   return (
     <>
       <SectionTag color="purple">Confidential — FareRX + Greens Health</SectionTag>
       <h1 className="text-2xl font-bold tracking-tight mb-1">Startup budget — variable cost model</h1>
       <p className="text-xs text-foreground-secondary mb-5 max-w-[720px] leading-relaxed">
-        PC + MSO + Non-Profit for CCM/RPM/MNT in PA. All clinical costs are variable per patient with 15% payroll burden loaded. RPM tech and billing/coding scale with volume. Launch April 2026 with 10 MNT patients. CCM/RPM cash arrives after 90-day delay then monthly. Capital range $40K–$60K.
+        PC + MSO + Non-Profit for CCM/RPM/MNT in PA. All clinical costs are variable per patient with 15% payroll burden loaded. HealthArc ${haRate}/pt and RingCentral ${rcRate}/pt scale with volume. Launch April 2026 with 10 MNT patients. CCM/RPM cash arrives after 90-day delay then monthly. Capital range $40K–$60K.
       </p>
 
       <div data-tour="kpi-cards" className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-5">
         <KPICard color="purple" label="Total capital" value={`${formatCurrency(gL)} – ${formatCurrency(gH)}`} subtitle="Through month 3 + milestones" />
         <KPICard color="coral" label="Monthly burn (30 pts)" value={`${formatCurrency(mL)} – ${formatCurrency(mH)}`} subtitle="Clinical variable + platform" />
-        <KPICard color="green" label="Margin per patient" value="$51.62" subtitle="31% on CCM+RPM ($166)" />
+        <KPICard color="green" label="Margin per patient" value={fmt2(marginPt)} subtitle={`${marginPct.toFixed(0)}% on CCM+RPM ($${revPt})`} />
       </div>
 
-      <InfoBox variant="emphasis" title="Clinical variable costs per patient (with 15% payroll burden)">
-        <div className="grid grid-cols-4 gap-1.5 mt-1.5">
-          <span><strong>RD (Dietitian)</strong><br />$40/hr × 0.75 hrs<br />= $30.00 → loaded <strong>$34.50</strong></span>
-          <span><strong>RN (Nurse)</strong><br />$45/hr × 0.50 hrs<br />= $22.50 → loaded <strong>$25.88</strong></span>
-          <span><strong>MA</strong><br />$24/hr × 0.75 hrs<br />= $18.00 → loaded <strong>$20.70</strong></span>
-          <span><strong>RPM Tech</strong><br />Flat per patient<br /><strong>$25.83/pt/mo</strong></span>
+      <InfoBox variant="emphasis" title={`Clinical variable costs per patient (with 15% payroll burden)`}>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-1.5 mt-1.5">
+          <span><strong>RD (Dietitian)</strong><br />${cacA.rdRate}/hr × {cacA.rdHrs} hrs<br />= {fmt2(cacA.rdRate * cacA.rdHrs)} → loaded <strong>{fmt2(rdLoaded)}</strong></span>
+          <span><strong>RN (Nurse)</strong><br />${cacA.rnRate}/hr × {cacA.rnHrs} hrs<br />= {fmt2(cacA.rnRate * cacA.rnHrs)} → loaded <strong>{fmt2(rnLoaded)}</strong></span>
+          <span><strong>MA</strong><br />${cacA.maRate}/hr × {cacA.maHrs} hrs<br />= {fmt2(cacA.maRate * cacA.maHrs)} → loaded <strong>{fmt2(maLoaded)}</strong></span>
+          <span><strong>Platforms</strong><br />HealthArc <strong>${haRate}/pt</strong><br />RingCentral <strong>${rcRate}/pt</strong></span>
         </div>
-        <p className="mt-2"><strong>Billing & coding: 4.5%</strong> of collections. Total variable: <strong>$106.91 + 4.5% = ~$114.38/pt/mo.</strong> Margin on CCM+RPM ($166): <strong>$51.62/pt (31.1%)</strong></p>
+        <p className="mt-2"><strong>Billing & coding: {billingPct}%</strong> of collections. Total variable: <strong>{fmt2(totalVarPt)}/pt/mo.</strong> Margin on CCM+RPM (${revPt}): <strong>{fmt2(marginPt)}/pt ({marginPct.toFixed(1)}%)</strong></p>
       </InfoBox>
 
       <div data-tour="budget-sections">
-        {Object.entries(BUDGET_DATA).map(([key, section]) => (
+        {Object.entries(displaySections).map(([key, section]) => (
           <BudgetSectionDisplay key={key} section={section} colorClass={sectionColors[key]} />
         ))}
       </div>
@@ -160,8 +201,8 @@ export default function BudgetOverview() {
         <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm" style={{ background: "rgba(37,99,235,0.18)" }} />High</span>
       </div>
 
-      <InfoBox variant="success" title="31% gross margin per patient">
-        At $51.62/pt margin on CCM+RPM, you need only <strong>~20 patients</strong> to cover the fixed platform costs (Zivian $2,000 + EHR $650 = $2,650/mo). With MNT revenue on top (~$1,360/mo at 10 pts), break-even drops to <strong>~15 CCM/RPM patients</strong>.
+      <InfoBox variant="success" title={`${marginPct.toFixed(0)}% gross margin per patient`}>
+        At {fmt2(marginPt)}/pt margin on CCM+RPM, you need only <strong>~{Math.ceil(cacA.fixedCost / marginPt)} patients</strong> to cover the fixed platform costs (Zivian $2,000 + EHR $650 = ${formatCurrency(cacA.fixedCost)}/mo). With MNT revenue on top (~$1,360/mo at 10 pts), break-even drops further.
       </InfoBox>
       <InfoBox variant="question" title="Revenue timeline (April start)">
         <strong>Apr (Mo 1):</strong> MNT + CCM + RPM billing starts. <strong>May (Mo 2):</strong> MNT cash arrives (~30d). <strong>Jul (Mo 4):</strong> CCM/RPM cash arrives (90d delay), then monthly thereafter. Variable clinical costs only incurred on active patients — no empty FTE burn.
